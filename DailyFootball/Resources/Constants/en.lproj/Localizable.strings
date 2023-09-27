@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  DailyFootball
+
+  Created by walkerhilla on 2023/09/27.
+  
+*/
+
+// TabBar Controller
+
+"tab_leagues_title" = "Leagues";
+"tab_matches_title" = "Matches";
+"tab_following_title" = "Following";
+"tab_news_title" = "News";

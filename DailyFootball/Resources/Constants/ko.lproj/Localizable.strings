@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  DailyFootball
+
+  Created by walkerhilla on 2023/09/27.
+  
+*/
+
+// TabBar Controller
+
+"tab_leagues_title" = "리그";
+"tab_matches_title" = "경기";
+"tab_following_title" = "팔로잉";
+"tab_news_title" = "뉴스";
