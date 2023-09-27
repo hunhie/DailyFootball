@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  FollowingViewController.swift
 //  DailyFootball
 //
 //  Created by walkerhilla on 2023/09/27.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class FollowingViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -16,4 +16,3 @@ class ViewController: UIViewController {
 
 
 }
-
