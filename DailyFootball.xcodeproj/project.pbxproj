@@ -10,9 +10,9 @@
 		B6203C182AC4644E00839892 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6203C172AC4644E00839892 /* AppDelegate.swift */; };
 		B6203C1A2AC4644E00839892 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6203C192AC4644E00839892 /* SceneDelegate.swift */; };
 		B6203C1C2AC4644E00839892 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6203C1B2AC4644E00839892 /* ViewController.swift */; };
-		B6203C1F2AC4644E00839892 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6203C1D2AC4644E00839892 /* Main.storyboard */; };
 		B6203C212AC4644F00839892 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6203C202AC4644F00839892 /* Assets.xcassets */; };
 		B6203C242AC4644F00839892 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6203C222AC4644F00839892 /* LaunchScreen.storyboard */; };
+		B6203C2C2AC464C100839892 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B6203C2B2AC464C100839892 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,10 +20,10 @@
 		B6203C172AC4644E00839892 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B6203C192AC4644E00839892 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B6203C1B2AC4644E00839892 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		B6203C1E2AC4644E00839892 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B6203C202AC4644F00839892 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B6203C232AC4644F00839892 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B6203C252AC4644F00839892 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6203C2B2AC464C100839892 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +40,7 @@
 		B6203C0B2AC4644E00839892 = {
 			isa = PBXGroup;
 			children = (
+				B6203C2B2AC464C100839892 /* .gitignore */,
 				B6203C162AC4644E00839892 /* DailyFootball */,
 				B6203C152AC4644E00839892 /* Products */,
 			);
@@ -59,7 +60,6 @@
 				B6203C172AC4644E00839892 /* AppDelegate.swift */,
 				B6203C192AC4644E00839892 /* SceneDelegate.swift */,
 				B6203C1B2AC4644E00839892 /* ViewController.swift */,
-				B6203C1D2AC4644E00839892 /* Main.storyboard */,
 				B6203C202AC4644F00839892 /* Assets.xcassets */,
 				B6203C222AC4644F00839892 /* LaunchScreen.storyboard */,
 				B6203C252AC4644F00839892 /* Info.plist */,
@@ -126,8 +126,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6203C242AC4644F00839892 /* LaunchScreen.storyboard in Resources */,
+				B6203C2C2AC464C100839892 /* .gitignore in Resources */,
 				B6203C212AC4644F00839892 /* Assets.xcassets in Resources */,
-				B6203C1F2AC4644E00839892 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,14 +147,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		B6203C1D2AC4644E00839892 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B6203C1E2AC4644E00839892 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		B6203C222AC4644F00839892 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -290,11 +282,13 @@
 				DEVELOPMENT_TEAM = HL89CPH3NA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DailyFootball/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Daily Football";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -302,9 +296,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.walkerhilla.DailyFootball;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -318,11 +315,13 @@
 				DEVELOPMENT_TEAM = HL89CPH3NA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DailyFootball/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Daily Football";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -330,9 +329,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.walkerhilla.DailyFootball;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
