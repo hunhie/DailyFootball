@@ -1,5 +1,5 @@
 //
-//  MatchupViewController.swift
+//  MatchesViewController.swift
 //  DailyFootball
 //
 //  Created by walkerhilla on 2023/09/27.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class MatchupViewController: UIViewController {
+final class MatchesViewController: BaseViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
