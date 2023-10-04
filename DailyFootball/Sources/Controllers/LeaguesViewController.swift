@@ -10,16 +10,41 @@ import SnapKit
 
 final class LeaguesViewController: BaseViewController {
   
-  let leagueView = LeagueView()
+  let leagueView = LeaguesView()
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    leagueView.collectionView.delegate = self
     setupNavigation()
+    fetchData()
   }
   
   override func loadView() {
     view = leagueView
+  }
+  
+  func fetchData() {
+    let apiManager = APIFootballManager()
+    apiManager.request(.leagues) { (result: Result<APIResponseLeagues, APIFootballError>) in
+      switch result {
+      case .success(let response):
+        response.response.forEach{ dump($0.league.name) }
+      case .failure(let error):
+        switch error {
+        case .noData:
+          print("응답 데이터 없음")
+        case .timeout:
+          print("시간 초과")
+        case .serverError:
+          print("API 서버 에러")
+        case .decodingError:
+          print("디코딩 실패")
+        case .unknown:
+          print("알 수 없는 오류")
+        }
+      }
+    }
   }
   
   func setupNavigation() {
@@ -48,5 +73,12 @@ final class LeaguesViewController: BaseViewController {
 extension LeaguesViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
 //    dump(searchController.searchBar.text)
+  }
+}
+
+extension LeaguesViewController: UICollectionViewDelegate {
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    guard let cell = collectionView.cellForItem(at: indexPath) as? CompetitionGroupCell else { return }
+    cell.tapAction?()
   }
 }
