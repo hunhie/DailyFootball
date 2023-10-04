@@ -26,6 +26,7 @@ enum LocalizedStrings {
   enum TabBar {
     enum Leagues: String, Localizable {
       case title = "tab_leagues_title"
+      case searchbarPlaceholder = "searchbar_placeholder"
     }
     
     enum Matches: String, Localizable {
