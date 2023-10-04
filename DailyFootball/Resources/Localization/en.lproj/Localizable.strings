@@ -6,9 +6,16 @@
   
 */
 
-// TabBar Controller
-
+//MARK: - Leagues
 "tab_leagues_title" = "Leagues";
+"searchbar_placeholder" = "Find leauges";
+
+//MARK: - Matches
 "tab_matches_title" = "Matches";
+
+//MARK: - Following
 "tab_following_title" = "Following";
+
+//MARK: - News
 "tab_news_title" = "News";
+

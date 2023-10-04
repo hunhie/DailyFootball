@@ -6,9 +6,15 @@
   
 */
 
-// TabBar Controller
-
+//MARK: - Leagues
 "tab_leagues_title" = "리그";
+"searchbar_placeholder" = "리그 검색";
+
+//MARK: - Matches
 "tab_matches_title" = "경기";
+
+//MARK: - Following
 "tab_following_title" = "팔로잉";
+
+//MARK: - News
 "tab_news_title" = "뉴스";
