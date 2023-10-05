@@ -12,16 +12,19 @@ final class MainTabBarViewController: UITabBarController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    view.backgroundColor = .systemBackground
     configureTabBar()
   }
   
   func configureTabBar() {
-    view.backgroundColor = .systemBackground
+    let appearance = UITabBarAppearance()
+    appearance.configureWithDefaultBackground()
+    appearance.backgroundColor = .systemBackground
     
-    tabBar.barTintColor = .systemBackground
-    tabBar.isTranslucent = false
     tabBar.tintColor = .label
     tabBar.unselectedItemTintColor = .gray
+    tabBar.standardAppearance = appearance
+    tabBar.scrollEdgeAppearance = appearance
     
     let league = UINavigationController(rootViewController: LeaguesViewController())
     league.tabBarItem.image = UIImage(systemName: "trophy.fill")
