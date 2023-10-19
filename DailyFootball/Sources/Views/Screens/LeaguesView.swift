@@ -10,161 +10,315 @@ import SnapKit
 
 final class LeaguesView: UIView {
   
-  enum Section: CaseIterable {
-    case followingCompetition
-    case allCompetition
-  }
-  
-  enum Item: Hashable {
-    case competition(Competition, isLast: Bool = false)
-    case competitionGroup(CompetitionGroup)
-  }
-  
-  lazy var collectionView: UICollectionView = {
-    let view = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+  lazy var tableView: UITableView = {
+    let view = UITableView(frame: .zero, style: .grouped)
     view.backgroundColor = .systemGray5
+    view.separatorStyle = .none
+    view.rowHeight = 60
+    view.dragInteractionEnabled = true
     return view
   }()
   
-  private typealias DataSource = UICollectionViewDiffableDataSource<Section, Item>
+  private typealias DataSource = UITableViewDiffableDataSource<Section, Item>
+  
   private var dataSource: DataSource?
   
-  var followingCompetition: [Competition] = [
-    Competition(title: "Premier League", logoURL: "https://example.com/images/premier-league-logo.png"),
-    Competition(title: "La Liga", logoURL: "https://example.com/images/la-liga-logo.png"),
-    Competition(title: "Bundesliga", logoURL: "https://example.com/images/bundesliga-logo.png")
-  ]
+  private var isEditingFollowingCompetition: Bool = false
   
-  var competitionGroups: [CompetitionGroup] = [
-    CompetitionGroup(title: "England", logoURL: "https://example.com/images/england-flag.png", competitions: [
-      Competition(title: "Premier League", logoURL: "https://example.com/images/premier-league-logo.png"),
-      Competition(title: "EFL Championship", logoURL: "https://example.com/images/efl-championship-logo.png"),
-      Competition(title: "EFL Championship", logoURL: "https://example.com/images/efl-championship-logo.png"),
-      Competition(title: "EFL Championship", logoURL: "https://example.com/images/efl-championship-logo.png"),
-      Competition(title: "EFL Championship", logoURL: "https://example.com/images/efl-championship-logo.png"),
-    ]),
-    CompetitionGroup(title: "Spain", logoURL: "https://example.com/images/spain-flag.png", competitions: [
-      Competition(title: "La Liga", logoURL: "https://example.com/images/la-liga-logo.png"),
-      Competition(title: "Segunda División", logoURL: "https://example.com/images/segunda-division-logo.png")
-    ]),
-    CompetitionGroup(title: "Germany", logoURL: "https://example.com/images/germany-flag.png", competitions: [
-      Competition(title: "Bundesliga", logoURL: "https://example.com/images/bundesliga-logo.png"),
-      Competition(title: "2. Bundesliga", logoURL: "https://example.com/images/2-bundesliga-logo.png")
-    ])
-  ]
+  weak var delegate: LeaguesViewDelegate?
+  
+  var activeSections: Set<Section> = []
   
   override init(frame: CGRect) {
     super.init(frame: frame)
     
     configureView()
     setConstraints()
+    initializeSections()
   }
   
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
   
-  func configureView() {
-    setCollectionView()
+  private func configureView() {
+    tableView.register(CompetitionGroupCell.self, forCellReuseIdentifier: CompetitionGroupCell.identifier)
+    tableView.register(CompetitionCell.self, forCellReuseIdentifier: CompetitionCell.identifier)
+    tableView.register(FollowingCompetitionCell.self, forCellReuseIdentifier: FollowingCompetitionCell.identifier)
+    tableView.register(LeaguesTableViewHeaderView.self, forHeaderFooterViewReuseIdentifier: LeaguesTableViewHeaderView.identifier)
+    
+    setDataSource()
   }
   
-  func setConstraints() {
-    collectionView.snp.makeConstraints { make in
+  private func setConstraints() {
+    addSubview(tableView)
+    
+    tableView.snp.makeConstraints { make in
       make.edges.equalToSuperview()
     }
   }
+}
+
+//MARK: - Data & State Management
+extension LeaguesView {
+  func updateFollowingCompetitions(with competitions: [Competition], animated: Bool) {
+    updateFollowedCompetitionsSnapshot(competitions, animated: animated)
+  }
   
-  func setCollectionView() {
-    addSubview(collectionView)
+  func updateAllCompetitions(with groups: [CompetitionGroup], animated: Bool) {
+    updateAllCompetitionsSnapshot(groups, animated: animated)
+  }
+  
+  func followCompetition(with competition: Competition, animated: Bool) {
+    addFollowedCompetition(competition, animated: animated)
+  }
+  
+  func unfollowCompetition(with competition: Competition, animated: Bool) {
+    removeFollowedCompetition(competition, animated: animated)
+  }
+  
+  func reorderFollowingCompetitions(from: IndexPath, to: IndexPath) {
+    moveFollowedCompetition(from: from, to: to)
+  }
+  
+  func competition(at indexPath: IndexPath) -> Competition? {
+    if let item = dataSource?.itemIdentifier(for: indexPath), case .competition(let sectionedCompetition, _) = item {
+      return sectionedCompetition.competition
+    }
+    return nil
+  }
+}
+
+//MARK: - TableView Edit Mode
+extension LeaguesView {
+  func shouldAllowDrag(at indexPath: IndexPath) -> Bool {
+    guard let dataSource,
+          let section = dataSource.sectionIdentifier(for: indexPath.section) else { return false }
+    return isEditingFollowingCompetition && section == .followingCompetition
+  }
+  
+  func toggleEditingModeForFollowingCompetitionSection(_ isEdit: Bool) {
+    isEditingFollowingCompetition = isEdit
+    reloadSection(.followingCompetition)
+  }
+  
+  private func synchronizaAllCompetitionsForUnFollowed(_ competition: Competition) {
+    guard let dataSource else { return }
+    let targetItem = Item.competition(SectionedCompetition(competition: competition, sectionIdentifier: .allCompetition))
+    if let targetIndexPath = dataSource.indexPath(for: targetItem),
+       let targetCell = tableView.cellForRow(at: targetIndexPath) as? CompetitionCell {
+      
+      targetCell.isFollowed = false
+    }
+  }
+}
+
+//MARK: - Tableview Datasource
+extension LeaguesView {
+  enum Section: CaseIterable {
+    case followingCompetition
+    case allCompetition
+  }
+  
+  enum Item: Hashable {
+    case followingCompetition(SectionedCompetition)
+    case competition(SectionedCompetition, isLast: Bool = false)
+    case competitionGroup(CompetitionGroup)
+  }
+  
+  struct SectionedCompetition: Hashable {
+    var competition: Competition
+    let sectionIdentifier: Section
     
-    let followingCompetitionCellRegistration = UICollectionView.CellRegistration<FollowingCompetitionCell, Competition> { (cell, indexPath, item) in
-      cell.configureView(with: item)
+    static func == (lhs: SectionedCompetition, rhs: SectionedCompetition) -> Bool {
+      return lhs.competition.id == rhs.competition.id &&
+      lhs.sectionIdentifier == rhs.sectionIdentifier
     }
     
-    let competitionGroupCellRegistration = UICollectionView.CellRegistration<CompetitionGroupCell, CompetitionGroup> { (cell, indexPath, item) in
-      cell.configureView(with: item)
-      cell.tapAction = {
-        if let index = self.competitionGroups.firstIndex(where: { $0.id == item.id }) {
-          self.competitionGroups[index].isExpanded.toggle()
-          cell.isExpended = self.competitionGroups[index].isExpanded
-          self.applySnapshot()
-        }
-      }
+    func hash(into hasher: inout Hasher) {
+      hasher.combine(competition.id)
+      hasher.combine(sectionIdentifier)
     }
-    
-    let competitionCellRegistration = UICollectionView.CellRegistration<CompetitionCell, Competition> { (cell, indexPath, item) in
-      cell.configureView(with: item)
-    }
-    
-    dataSource = DataSource(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
+  }
+  
+  private func setDataSource() {
+    dataSource = DataSource(tableView: tableView) { [weak self] tableView, indexPath, item -> UITableViewCell? in
+      guard let self else { return nil }
+      
       switch item {
-      case .competition(let competition, _) where indexPath.section == 0:
-        return collectionView.dequeueConfiguredReusableCell(using: followingCompetitionCellRegistration, for: indexPath, item: competition)
-      case .competition(let competition, let isLast):
-        let cell = collectionView.dequeueConfiguredReusableCell(using: competitionCellRegistration, for: indexPath, item: competition)
-        cell.applyRoundedCorners(isLast: isLast)
-        return cell
-      case .competitionGroup(let competition):
-        return collectionView.dequeueConfiguredReusableCell(using: competitionGroupCellRegistration, for: indexPath, item: competition)
-      }
-    }
-    
-    applySnapshot()
-  }
-  
-  private func applySnapshot() {
-    var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-    snapshot.appendSections([.followingCompetition])
-    snapshot.appendItems(followingCompetition.map { Item.competition($0) }, toSection: .followingCompetition)
-    snapshot.appendSections([.allCompetition])
-    
-    for competitionGroup in competitionGroups {
-      if competitionGroup.isExpanded {
-        var items = [Item.competitionGroup(competitionGroup)]
-        for (index, competition) in competitionGroup.competitions.enumerated() {
-          let isLast = index == competitionGroup.competitions.count - 1
-          items.append(Item.competition(competition, isLast: isLast))
+      case .followingCompetition(let sectionedCompetition):
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: FollowingCompetitionCell.identifier, for: indexPath) as? FollowingCompetitionCell else { return nil }
+        cell.configureView(with: sectionedCompetition.competition)
+        cell.isEditingMode = isEditingFollowingCompetition
+        cell.deleteAction = { [weak self] in
+          self?.delegate?.didUnfollow(competition: sectionedCompetition.competition)
+          self?.synchronizaAllCompetitionsForUnFollowed(sectionedCompetition.competition)
         }
-        snapshot.appendItems(items, toSection: .allCompetition)
-      } else {
-        snapshot.appendItems([.competitionGroup(competitionGroup)], toSection: .allCompetition)
+        return cell
+        
+      case .competition(let sectionedCompetition, let isLast):
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CompetitionCell.identifier, for: indexPath) as? CompetitionCell else { return nil }
+        let competition = sectionedCompetition.competition
+        cell.configureView(with: competition)
+        cell.applyRoundedCorners(isLast: isLast)
+        cell.followAction = { [weak self] isfollwed in
+          guard let self else { return }
+          if isfollwed {
+            self.delegate?.didUnfollow(competition: competition)
+          } else {
+            self.delegate?.didFollow(competition: competition)
+          }
+          cell.isFollowed.toggle()
+        }
+        return cell
+        
+      case .competitionGroup(let competitionGroup):
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CompetitionGroupCell.identifier, for: indexPath) as? CompetitionGroupCell else { return nil }
+        cell.configureView(with: competitionGroup)
+        cell.tapAction = { [weak self] in
+          guard let self else { return }
+          self.delegate?.didTapCompetitionGroup(competitionGroup: competitionGroup)
+        }
+        return cell
       }
+    }
+  }
+  
+  private func initializeSections() {
+    guard let dataSource = self.dataSource else { return }
+    
+    var initialSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+    initialSnapshot.appendSections([.followingCompetition, .allCompetition])
+    
+    dataSource.apply(initialSnapshot, animatingDifferences: false)
+  }
+  
+  private func updateFollowedCompetitionsSnapshot(_ competitions: [Competition], animated: Bool) {
+    guard let dataSource = self.dataSource else { return }
+    dataSource.defaultRowAnimation = .none
+    
+    var currentSnapshot = dataSource.snapshot()
+    currentSnapshot.deleteItems(currentSnapshot.itemIdentifiers(inSection: .followingCompetition))
+    
+    if !competitions.isEmpty {
+      currentSnapshot.appendItems(competitions.map { .followingCompetition(SectionedCompetition(competition: $0, sectionIdentifier: .followingCompetition)) }, toSection: .followingCompetition)
+      activeSections.insert(.followingCompetition)
+    } else {
+      activeSections.remove(.followingCompetition)
     }
     
-    dataSource?.apply(snapshot, animatingDifferences: true)
+    dataSource.apply(currentSnapshot, animatingDifferences: animated)
   }
   
-  private func createLayout() -> UICollectionViewLayout {
-    let layout = UICollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
-      switch Section.allCases[sectionIndex] {
-      case .followingCompetition:
-        return self.createFollowingCompetitionSection()
-      case .allCompetition:
-        return self.createAllCompetitionSection()
+  private func updateAllCompetitionsSnapshot(_ competitionGroups: [CompetitionGroup], animated: Bool) {
+    guard let dataSource = self.dataSource else { return }
+    dataSource.defaultRowAnimation = .none
+    
+    var currentSnapshot = dataSource.snapshot()
+    currentSnapshot.deleteItems(currentSnapshot.itemIdentifiers(inSection: .allCompetition))
+    
+    if !competitionGroups.isEmpty {
+      var allCompetitionItems: [Item] = []
+      
+      for competitionGroup in competitionGroups {
+        if competitionGroup.isExpanded {
+          allCompetitionItems.append(.competitionGroup(competitionGroup))
+          for (index, competition) in competitionGroup.competitions.enumerated() {
+            let isLast = index == competitionGroup.competitions.count - 1
+            allCompetitionItems.append(.competition(SectionedCompetition(competition: competition, sectionIdentifier: .allCompetition), isLast: isLast))
+          }
+        } else {
+          allCompetitionItems.append(.competitionGroup(competitionGroup))
+        }
       }
+      
+      currentSnapshot.appendItems(allCompetitionItems, toSection: .allCompetition)
+      activeSections.insert(.allCompetition)
+    } else {
+      activeSections.remove(.allCompetition)
     }
-    return layout
+    
+    dataSource.apply(currentSnapshot, animatingDifferences: animated)
   }
   
-  private func createFollowingCompetitionSection() -> NSCollectionLayoutSection {
-    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(50))
-    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(50))
-    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-    let section = NSCollectionLayoutSection(group: group)
-    section.interGroupSpacing = 10
-    section.contentInsets = .init(top: 10, leading: 10, bottom: 0, trailing: 10)
-    return section
+  func toggleCompetitions(forGroup group: CompetitionGroup, at indexPath: IndexPath) {
+    guard let dataSource = self.dataSource else { return }
+    var currentSnapshot = dataSource.snapshot()
+    
+    let existingItemsForGroup = currentSnapshot.itemIdentifiers(inSection: .allCompetition).filter {
+      if case .competitionGroup(let competitionGroup) = $0 {
+        return competitionGroup.title == group.title
+      }
+      return false
+    }
+    
+    if group.isExpanded {
+      var newItems: [Item] = []
+      for (index, competition) in group.competitions.enumerated() {
+        let isLast = index == group.competitions.count - 1
+        newItems.append(.competition(SectionedCompetition(competition: competition, sectionIdentifier: .allCompetition), isLast: isLast))
+      }
+      
+      for (index, item) in newItems.enumerated() {
+        currentSnapshot.insertItems([item], afterItem: currentSnapshot.itemIdentifiers(inSection: .allCompetition)[indexPath.row + index])
+      }
+    } else {
+      currentSnapshot.deleteItems(existingItemsForGroup)
+    }
+    
+    let cell = self.tableView.cellForRow(at: indexPath) as? CompetitionGroupCell
+    cell?.isExpanded.toggle()
+    dataSource.apply(currentSnapshot, animatingDifferences: true) {
+
+    }
   }
   
-  private func createAllCompetitionSection() -> NSCollectionLayoutSection {
-    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(60))
-    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(500))
-    let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-    let section = NSCollectionLayoutSection(group: group)
-    section.interGroupSpacing = 0
-    section.contentInsets = .init(top: 0, leading: 10, bottom: 0, trailing: 10)
-    return section
+  private func addFollowedCompetition(_ competition: Competition, animated: Bool) {
+    guard let dataSource = self.dataSource else { return }
+    dataSource.defaultRowAnimation = .top
+    
+    var currentSnapshot = dataSource.snapshot()
+    currentSnapshot.appendItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))], toSection: .followingCompetition)
+    
+    activeSections.insert(.followingCompetition)
+    dataSource.apply(currentSnapshot, animatingDifferences: animated)
+  }
+  
+  private func removeFollowedCompetition(_ competition: Competition, animated: Bool) {
+    guard let dataSource else { return }
+    dataSource.defaultRowAnimation = .bottom
+    
+    var currentSnapshot = dataSource.snapshot()
+    currentSnapshot.deleteItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))])
+    
+    if currentSnapshot.numberOfItems(inSection: .followingCompetition) == 0 {
+      activeSections.remove(.followingCompetition)
+    }
+    
+    dataSource.apply(currentSnapshot, animatingDifferences: animated)
+  }
+  
+  private func reloadSection(_ sectionIdentifier: Section) {
+    guard let dataSource else { return }
+    
+    var currentSnapshot = dataSource.snapshot()
+    let itemsInSection = currentSnapshot.itemIdentifiers(inSection: sectionIdentifier)
+    currentSnapshot.reloadItems(itemsInSection)
+    dataSource.apply(currentSnapshot, animatingDifferences: false)
+  }
+  
+  private func moveFollowedCompetition(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    guard let dataSource,
+          let itemToMove = dataSource.itemIdentifier(for: sourceIndexPath),
+          let referenceItem = dataSource.itemIdentifier(for: destinationIndexPath) else { return }
+    
+    var currentSnapshot = dataSource.snapshot()
+    if sourceIndexPath > destinationIndexPath {
+      currentSnapshot.moveItem(itemToMove, beforeItem: referenceItem)
+    } else {
+      currentSnapshot.moveItem(itemToMove, afterItem: referenceItem)
+    }
+    
+    dataSource.applySnapshotUsingReloadData(currentSnapshot)
   }
 }
