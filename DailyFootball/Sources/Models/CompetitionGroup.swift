@@ -8,17 +8,17 @@
 import Foundation
 
 struct CompetitionGroup: Hashable {
-  var id = UUID()
   var title: String
   var logoURL: String
   var competitions: [Competition]
   var isExpanded: Bool = false
   
   static func == (lhs: CompetitionGroup, rhs: CompetitionGroup) -> Bool {
-    return lhs.id == rhs.id
+    return lhs.title == rhs.title && lhs.isExpanded == rhs.isExpanded
   }
   
   func hash(into hasher: inout Hasher) {
-    hasher.combine(id)
+    hasher.combine(title)
+    hasher.combine(isExpanded)
   }
 }

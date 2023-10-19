@@ -8,15 +8,19 @@
 import Foundation
 
 struct Competition: Hashable {
-  var id = UUID()
+  var id: Int
   var title: String
   var logoURL: String
+  var type: String
+  var country: String
+  var isFollowed: Bool
   
   static func == (lhs: Competition, rhs: Competition) -> Bool {
-    return lhs.id == rhs.id
+    return lhs.id == rhs.id && lhs.isFollowed == rhs.isFollowed
   }
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(id)
+    hasher.combine(isFollowed)
   }
 }
