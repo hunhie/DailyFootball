@@ -32,11 +32,11 @@ struct APIFootballManager {
         case 500:
           completion(.failure(.serverError))
         default:
-          completion(.failure(.unknown))
+          completion(.failure(.unknownError))
         }
       case .failure(let error):
         dump(error)
-        completion(.failure(.unknown))
+        completion(.failure(.unknownError))
       }
     }
   }

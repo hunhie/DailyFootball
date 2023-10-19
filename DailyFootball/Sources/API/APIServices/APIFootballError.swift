@@ -12,5 +12,5 @@ enum APIFootballError: Error {
   case noData
   case timeout
   case serverError
-  case unknown
+  case unknownError
 }
