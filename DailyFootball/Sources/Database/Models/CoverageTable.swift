@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 final class CoverageTable: EmbeddedObject {
-  @Persisted var fixtures: FixturesTable
+  @Persisted var fixtures: FixturesTable?
   @Persisted var standings: Bool
   @Persisted var players: Bool
   @Persisted var topScorers: Bool

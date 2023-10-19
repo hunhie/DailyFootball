@@ -14,11 +14,12 @@ final class CountryTable: Object {
   @Persisted var flag: String?
   @Persisted var updateDate: Date
   
-  convenience init(name: String, code: String? = nil, flag: String? = nil, updateDate: Date) {
+  convenience init(name: String, code: String? = nil, flag: String? = nil) {
     self.init()
     self.name = name
     self.code = code
     self.flag = flag
     self.updateDate = updateDate
+    self.updateDate = Date()
   }
 }

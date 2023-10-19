@@ -13,7 +13,7 @@ final class SeasonTable: EmbeddedObject {
   @Persisted var start: Date?
   @Persisted var end: Date?
   @Persisted var current: Bool
-  @Persisted var coverage: CoverageTable
+  @Persisted var coverage: CoverageTable?
   
   convenience init(year: Int, start: Date?, end: Date?, current: Bool, coverage: CoverageTable) {
     self.init()
