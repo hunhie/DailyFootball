@@ -27,7 +27,7 @@ extension APIFootballTarget: TargetType {
   
   var task: Moya.Task {
     switch self {
-    case .leagues: return .requestParameters(parameters: ["current": "true"], encoding: URLEncoding.queryString)
+    case .leagues: return .requestPlain
     }
   }
   
