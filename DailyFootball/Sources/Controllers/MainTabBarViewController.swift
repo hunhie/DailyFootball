@@ -34,14 +34,14 @@ final class MainTabBarViewController: UITabBarController {
     matches.tabBarItem.image = UIImage(systemName: "sportscourt.fill")
     matches.tabBarItem.title = LocalizedStrings.TabBar.Matches.title.localizedValue
     
-    let following = UINavigationController(rootViewController: FollowingViewController())
-    following.tabBarItem.image = UIImage(systemName: "star.fill")
-    following.tabBarItem.title = LocalizedStrings.TabBar.Following.title.localizedValue
-    
     let news = UINavigationController(rootViewController: NewsViewController())
     news.tabBarItem.image = UIImage(systemName: "newspaper.fill")
     news.tabBarItem.title = LocalizedStrings.TabBar.News.title.localizedValue
     
-    viewControllers = [league, matches, following, news]
+    let more = UINavigationController(rootViewController: MoreViewController())
+    more.tabBarItem.image = UIImage(named: "more.fill")
+    more.tabBarItem.title = LocalizedStrings.TabBar.More.title.localizedValue
+    
+    viewControllers = [league, matches, news, more]
   }
 }
