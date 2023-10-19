@@ -9,87 +9,120 @@ import UIKit
 import Kingfisher
 import SnapKit
 
-final class CompetitionGroupCell: UICollectionViewCell {
+final class CompetitionGroupCell: UITableViewCell {
   
-  private let containerView: UIView = {
+  enum ExpansionState {
+    case collapsed
+    case expanded
+  }
+  
+  private lazy var containerView: UIView = {
     let view = UIView()
     view.backgroundColor = .white
     view.layer.cornerRadius = 12
     return view
   }()
   
-  private let logoImageView: UIImageView = {
+  private lazy var logoImageView: UIImageView = {
     let view = UIImageView()
-    view.contentMode = .scaleToFill
+    view.contentMode = .scaleAspectFill
+    view.layer.cornerRadius = 16
+    view.layer.borderColor = UIColor.systemGray6.cgColor
+    view.layer.borderWidth = 0.5
+    view.clipsToBounds = true
+    view.tintColor = .black
     return view
   }()
   
-  private let titleLabel: UILabel = {
+  private lazy var titleLabel: UILabel = {
     let view = UILabel()
+    view.font = .systemFont(ofSize: 15, weight: .medium)
     return view
   }()
   
-  private let expansionArrowView: UIImageView = {
-    let view = UIImageView()
+  private lazy var expansionArrowView: StatefulImageView = {
+    let view = StatefulImageView<ExpansionState>()
     view.contentMode = .scaleToFill
+    view.tintColor = .systemGray3
+    view.setImage(UIImage(systemName: "chevron.down"), forState: .collapsed)
+    view.setImage(UIImage(systemName: "chevron.up"), forState: .expanded)
     return view
   }()
-
-  override init(frame: CGRect) {
-    super.init(frame: frame)
+  
+  override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    super.init(style: style, reuseIdentifier: reuseIdentifier)
     
+    setCellUI()
     setConstraints()
   }
   
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
-  var tapAction: (() -> Void)?
   
-  var isExpended: Bool = false {
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    
+    logoImageView.image = nil
+    titleLabel.text = nil
+  }
+  
+  var tapAction: (() -> ())?
+  
+  var isExpanded: Bool = false {
     didSet {
-      updateCornerRadiusForExpansionState(isExpanded: isExpended)
+      updateCornerRadiusForExpansionState(isExpanded: isExpanded)
+      updateExpansionArrowForExpansionState(isExpanded: isExpanded)
     }
   }
   
+  private var animationWorkItem: DispatchWorkItem?
+  
   public func configureView(with competitionGroup: CompetitionGroup) {
-    isExpended = competitionGroup.isExpanded
+    isExpanded = competitionGroup.isExpanded
     
     setLogoImage(competitionGroup)
     setTitle(competitionGroup)
   }
   
+  private func setCellUI() {
+    backgroundColor = .systemGray5
+    selectionStyle = .none
+  }
+  
   private func setConstraints() {
-    addSubview(containerView)
+    contentView.addSubview(containerView)
     containerView.addSubview(logoImageView)
     containerView.addSubview(titleLabel)
     containerView.addSubview(expansionArrowView)
     
     containerView.snp.makeConstraints { make in
       make.top.equalToSuperview().offset(10)
-      make.horizontalEdges.bottom.equalToSuperview()
+      make.horizontalEdges.equalToSuperview().inset(14)
+      make.bottom.equalToSuperview().offset(0)
     }
     
     logoImageView.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
       make.leading.equalToSuperview().offset(20)
+      make.size.equalTo(28)
     }
     
     titleLabel.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
-      make.leading.equalTo(logoImageView).offset(20)
+      make.leading.equalTo(logoImageView.snp.trailing).offset(20)
     }
     
     expansionArrowView.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
       make.trailing.equalToSuperview().offset(-20)
+      make.size.equalTo(17)
     }
   }
   
   private func setLogoImage(_ data: CompetitionGroup) {
     if let imageSource = URL(string: data.logoURL) {
-      logoImageView.kf.setImage(with: imageSource)
+      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
     }
   }
   
@@ -101,12 +134,19 @@ final class CompetitionGroupCell: UICollectionViewCell {
     let allCorners: CACornerMask = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
     let topCorners: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
     
+    animationWorkItem?.cancel()
+    self.containerView.layer.maskedCorners = topCorners
     if !isExpanded {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+      let workItem = DispatchWorkItem {
         self.containerView.layer.maskedCorners = allCorners
       }
-    } else {
-      containerView.layer.maskedCorners = topCorners
+      animationWorkItem = workItem
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.23, execute: workItem)
     }
   }
+  
+  private func updateExpansionArrowForExpansionState(isExpanded: Bool) {
+    expansionArrowView.currentState = isExpanded ? .expanded : .collapsed
+  }
 }
+
