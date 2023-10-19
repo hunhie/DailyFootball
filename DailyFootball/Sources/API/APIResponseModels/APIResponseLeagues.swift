@@ -10,14 +10,13 @@ import Foundation
 // MARK: - APIResponseLeagues
 struct APIResponseLeagues: Codable {
   let get: String
-  let parameters: Parameters
   let errors: [String]
   let results: Int
   let paging: Paging
   let response: [Response]
   
   enum CodingKeys: String, CodingKey {
-    case get, parameters, errors, results, paging, response
+    case get, errors, results, paging, response
   }
 }
 
@@ -26,19 +25,6 @@ extension APIResponseLeagues {
   // MARK: - Paging
   struct Paging: Codable {
     let current, total: Int
-  }
-  
-  // MARK: - Parameters
-  struct Parameters: Codable {
-    let id: Int?
-    let name: String?
-    let code: String?
-    let season: Int?
-    let team: Int?
-    let type: String?
-    let current: String?
-    let search: String?
-    let last: Int?
   }
   
   // MARK: - Response
