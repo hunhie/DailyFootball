@@ -16,3 +16,5 @@ xcuserdata/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 *.plist
+APIKeys.swift
+xcschememanagement.plist
