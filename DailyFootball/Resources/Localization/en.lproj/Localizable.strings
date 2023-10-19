@@ -19,3 +19,5 @@
 //MARK: - News
 "tab_news_title" = "News";
 
+//MARK: - More
+"tab_more_title" = "More";

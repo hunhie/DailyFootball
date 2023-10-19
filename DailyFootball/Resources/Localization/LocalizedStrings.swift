@@ -40,5 +40,9 @@ enum LocalizedStrings {
     enum News: String, Localizable {
       case title = "tab_news_title"
     }
+    
+    enum More: String, Localizable {
+      case title = "tab_more_title"
+    }
   }
 }
