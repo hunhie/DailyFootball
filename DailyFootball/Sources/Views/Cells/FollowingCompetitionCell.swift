@@ -15,6 +15,10 @@ final class FollowingCompetitionCell: UITableViewCell {
     let view = UIView()
     view.backgroundColor = .white
     view.layer.cornerRadius = 16
+    
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+    view.isUserInteractionEnabled = true
+    view.addGestureRecognizer(tapGesture)
     return view
   }()
   
@@ -82,6 +86,7 @@ final class FollowingCompetitionCell: UITableViewCell {
   }
   
   var deleteAction: (() -> ())?
+  var tapAction: (() -> ())?
   
   var containerFrame: CGRect {
     return containerView.frame
@@ -142,5 +147,9 @@ final class FollowingCompetitionCell: UITableViewCell {
   
   @objc private func deleteButtonTapped() {
     deleteAction?()
+  }
+  
+  @objc func cellTapped() {
+    self.tapAction?()
   }
 }
