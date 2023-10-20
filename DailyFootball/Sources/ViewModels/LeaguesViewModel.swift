@@ -49,6 +49,8 @@ final class LeaguesViewModel {
       searchCompetition(with: query)
     case .reorderCompetition(from: let from, to: let to):
       reorderFollowedCompetitions(from: from, to: to)
+    case .showIndicator:
+      state.value = .loading
     }
   }
   
@@ -196,6 +198,7 @@ extension LeaguesViewModel {
     case toggleCompetitionGroupDetail(CompetitionGroup)
     case reorderCompetition(from: IndexPath, to: IndexPath)
     case searchCompetition(String)
+    case showIndicator
   }
   
   enum State {
