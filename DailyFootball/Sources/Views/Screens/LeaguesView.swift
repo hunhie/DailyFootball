@@ -19,6 +19,11 @@ final class LeaguesView: UIView {
     return view
   }()
   
+  lazy var activityIndicator: UIActivityIndicatorView = {
+    let view = UIActivityIndicatorView(style: .medium)
+    return view
+  }()
+  
   private typealias DataSource = UITableViewDiffableDataSource<Section, Item>
   
   private var dataSource: DataSource?
@@ -52,10 +57,20 @@ final class LeaguesView: UIView {
   
   private func setConstraints() {
     addSubview(tableView)
+    tableView.addSubview(activityIndicator)
     
     tableView.snp.makeConstraints { make in
       make.edges.equalToSuperview()
     }
+    
+    activityIndicator.snp.makeConstraints { make in
+      make.centerX.equalTo(tableView)
+      make.centerY.equalTo(tableView).multipliedBy(0.6)
+    }
+  }
+  
+  func showIndicator() {
+    activityIndicator.startAnimating()
   }
 }
 
@@ -154,6 +169,10 @@ extension LeaguesView {
           self?.delegate?.didUnfollow(competition: sectionedCompetition.competition)
           self?.synchronizaAllCompetitionsForUnFollowed(sectionedCompetition.competition)
         }
+        cell.tapAction = { [weak self] in
+          guard let self else { return }
+          self.delegate?.didTapCompetition(competition: sectionedCompetition.competition)
+        }
         return cell
         
       case .competition(let sectionedCompetition, let isLast):
@@ -170,6 +189,11 @@ extension LeaguesView {
           }
           cell.isFollowed.toggle()
         }
+        cell.tapAction = { [weak self] in
+          guard let self else { return }
+          self.delegate?.didTapCompetition(competition: competition)
+        }
+        
         return cell
         
       case .competitionGroup(let competitionGroup):
@@ -269,7 +293,7 @@ extension LeaguesView {
     let cell = self.tableView.cellForRow(at: indexPath) as? CompetitionGroupCell
     cell?.isExpanded.toggle()
     dataSource.apply(currentSnapshot, animatingDifferences: true) {
-
+      
     }
   }
   
