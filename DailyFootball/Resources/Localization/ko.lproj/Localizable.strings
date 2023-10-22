@@ -10,6 +10,10 @@
 "tab_leagues_title" = "리그";
 "searchbar_placeholder" = "리그 검색";
 
+  // League Detail
+  "league_detail_tab_standings" = "팀 순위";
+  "league_detail_tab_players" = "선수";
+
 //MARK: - Matches
 "tab_matches_title" = "경기";
 

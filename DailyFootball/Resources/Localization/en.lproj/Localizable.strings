@@ -6,18 +6,21 @@
   
 */
 
-//MARK: - Leagues
+// MARK: - Leagues
 "tab_leagues_title" = "Leagues";
 "searchbar_placeholder" = "Find leauges";
 
-//MARK: - Matches
+"league_detail_tab_standings" = "Standings";
+"league_detail_tab_players" = "Players";
+
+// MARK: - Matches
 "tab_matches_title" = "Matches";
 
-//MARK: - Following
+// MARK: - Following
 "tab_following_title" = "Following";
 
-//MARK: - News
+// MARK: - News
 "tab_news_title" = "News";
 
-//MARK: - More
+// MARK: - More
 "tab_more_title" = "More";

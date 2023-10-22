@@ -45,4 +45,12 @@ enum LocalizedStrings {
       case title = "tab_more_title"
     }
   }
+  
+  enum Leagues {
+    enum LeagueDetailTab: String, Localizable, CaseIterable {
+      case standings = "league_detail_tab_standings"
+      case players = "league_detail_tab_players"
+    }
+  }
+  
 }
