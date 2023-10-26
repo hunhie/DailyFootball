@@ -10,11 +10,35 @@
 "tab_leagues_title" = "Leagues";
 "searchbar_placeholder" = "Find leauges";
 
-"league_detail_tab_standings" = "Standings";
-"league_detail_tab_players" = "Players";
+  "button_state_follow" = "Follow";
+  "button_state_following" = "Following";
+
+  "section_favorite" = "Favorite";
+  "section_allCompetition" = "All Competitions";
+
+  // League Detail
+  "league_detail_tab_standings" = "Standings";
+  "league_detail_tab_scorers" = "Scorers";
+
+    // League Detail Header
+    "standings_header_title" = "Rank";
+    "standings_header_mp" = "MP";
+    "standings_header_win" = "W";
+    "standings_header_draw" = "D";
+    "standings_header_lose" = "L";
+    "standings_header_goaldiff" = "Gd";
+    "standings_header_points" = "Pts";
+
+    "scorers_header_rank" = "Rank";
+    "scorers_header_goals" = "Goals";
 
 // MARK: - Matches
 "tab_matches_title" = "Matches";
+
+  // Matches Tap
+  "matches_tab_yesterday" = "Yesterday";
+  "matches_tab_today" = "Today";
+  "matches_tab_tomorrow" = "Tomorrow";
 
 // MARK: - Following
 "tab_following_title" = "Following";

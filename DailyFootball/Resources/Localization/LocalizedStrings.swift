@@ -27,6 +27,10 @@ enum LocalizedStrings {
     enum Leagues: String, Localizable {
       case title = "tab_leagues_title"
       case searchbarPlaceholder = "searchbar_placeholder"
+      case followButton = "button_state_follow"
+      case followingButton = "button_state_following"
+      case sectionFavorite = "section_favorite"
+      case sectionAllCompetition = "section_allCompetition"
     }
     
     enum Matches: String, Localizable {
@@ -49,7 +53,30 @@ enum LocalizedStrings {
   enum Leagues {
     enum LeagueDetailTab: String, Localizable, CaseIterable {
       case standings = "league_detail_tab_standings"
-      case players = "league_detail_tab_players"
+      case scorers = "league_detail_tab_scorers"
+      
+      enum standingsHeader: String, Localizable {
+        case rank = "standings_header_title"
+        case mp = "standings_header_mp"
+        case win = "standings_header_win"
+        case draw = "standings_header_draw"
+        case lose = "standings_header_lose"
+        case goalDiff = "standings_header_goaldiff"
+        case points = "standings_header_points"
+      }
+      
+      enum scorersHeader: String, Localizable {
+        case rank = "scorers_header_rank"
+        case goals = "scorers_header_goals"
+      }
+    }
+  }
+  
+  enum Matches {
+    enum MatchesTab: String, Localizable, CaseIterable {
+      case yesterday = "matches_tab_yesterday"
+      case today = "matches_tab_today"
+      case tomorrow = "matches_tab_tomorrow"
     }
   }
   

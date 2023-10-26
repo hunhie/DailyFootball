@@ -9,13 +9,36 @@
 //MARK: - Leagues
 "tab_leagues_title" = "리그";
 "searchbar_placeholder" = "리그 검색";
+  
+  "button_state_follow" = "팔로우";
+  "button_state_following" = "팔로잉";
+
+  "section_favorite" = "즐겨찾기";
+  "section_allCompetition" = "모든 리그";
 
   // League Detail
   "league_detail_tab_standings" = "팀 순위";
-  "league_detail_tab_players" = "선수";
+  "league_detail_tab_scorers" = "선수 순위";
+
+    // League Detail Header
+    "standings_header_title" = "순위";
+    "standings_header_mp" = "경기";
+    "standings_header_win" = "승";
+    "standings_header_draw" = "무";
+    "standings_header_lose" = "패";
+    "standings_header_goaldiff" = "득실";
+    "standings_header_points" = "점수";
+    
+    "scorers_header_rank" = "순위";
+    "scorers_header_goals" = "득점";
 
 //MARK: - Matches
 "tab_matches_title" = "경기";
+
+  // Matches Tap
+  "matches_tab_yesterday" = "어제";
+  "matches_tab_today" = "오늘";
+  "matches_tab_tomorrow" = "내일";
 
 //MARK: - Following
 "tab_following_title" = "팔로잉";
