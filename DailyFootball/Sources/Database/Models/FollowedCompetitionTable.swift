@@ -14,13 +14,15 @@ final class FollowedCompetitionTable: Object {
   @Persisted var logoURL: String
   @Persisted var type: String
   @Persisted var country: String
-
-  convenience init(id: Int, title: String, logoURL: String, type: String, country: String) {
+  @Persisted var seasons: List<SeasonTable>
+  
+  convenience init(id: Int, title: String, logoURL: String, type: String, country: String, seasons: List<SeasonTable>) {
     self.init()
     self.id = id
     self.title = title
     self.logoURL = logoURL
     self.type = type
     self.country = country
+    self.seasons = seasons
   }
 }
