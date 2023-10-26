@@ -6,7 +6,8 @@
 //
 
 import UIKit
-import FirebaseCore
+import Firebase
+import FirebaseAnalytics
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,6 +18,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Override point for customization after application launch.
     
     FirebaseApp.configure()
+    
+    // 사용자 세션 시작 이벤트 로깅
+    Analytics.logEvent(AnalyticsEventAppOpen, parameters: nil)
+    
     return true
   }
 
