@@ -12,17 +12,17 @@ final class MainTabBarViewController: UITabBarController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    view.backgroundColor = .systemBackground
+    view.backgroundColor = UIColor.appColor(for: .background)
     configureTabBar()
   }
   
   func configureTabBar() {
     let appearance = UITabBarAppearance()
     appearance.configureWithDefaultBackground()
-    appearance.backgroundColor = .systemBackground
+    appearance.backgroundColor = UIColor.appColor(for: .background)
     
-    tabBar.tintColor = .label
-    tabBar.unselectedItemTintColor = .gray
+    tabBar.tintColor = UIColor.appColor(for: .accentDarkAndBlack)
+    tabBar.unselectedItemTintColor = UIColor.appColor(for: .accentDarkAndBlack)
     tabBar.standardAppearance = appearance
     tabBar.scrollEdgeAppearance = appearance
     
@@ -42,6 +42,6 @@ final class MainTabBarViewController: UITabBarController {
     more.tabBarItem.image = UIImage(named: "more.fill")
     more.tabBarItem.title = LocalizedStrings.TabBar.More.title.localizedValue
     
-    viewControllers = [league, matches, news, more]
+    viewControllers = [league, matches, more]
   }
 }
