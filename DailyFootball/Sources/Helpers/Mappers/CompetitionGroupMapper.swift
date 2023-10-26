@@ -12,10 +12,21 @@ struct CompetitionGroupMapper {
   static func toEntity(from table: Results<CompetitionTable>, followedCompetitions: Results<FollowedCompetitionTable>) -> [CompetitionGroup] {
     let groudpedLeagueTablesByCountry = Dictionary(grouping: table) { $0.country?.name ?? ""}
     
-    let competitionGroups = groudpedLeagueTablesByCountry.map { (countryName, tables) in
-      let competitions = tables.map { competitionTable in
+    let competitionGroups = groudpedLeagueTablesByCountry.map { (countryName, tables) -> CompetitionGroup in
+      let competitions = tables.map { competitionTable -> Competition in
         let isFollowed = followedCompetitions.contains(where: { $0.id == competitionTable.id })
-        return Competition(id: competitionTable.id, title: competitionTable.name, logoURL: competitionTable.logo ?? "", type: competitionTable.type, country: competitionTable.country?.name ?? "", isFollowed: isFollowed)
+
+        let seasons = CompetitionMapper.mapSeasons(from: competitionTable.seasons)
+
+        return Competition(
+          id: competitionTable.id,
+          title: competitionTable.name,
+          logoURL: competitionTable.logo ?? "",
+          type: competitionTable.type,
+          country: competitionTable.country?.name ?? "",
+          isFollowed: isFollowed,
+          season: seasons
+        )
       }
       let sortedCompetitions = competitions.sorted { $0.id < $1.id }
       let countryLogo = tables.first?.country?.flag ?? ""

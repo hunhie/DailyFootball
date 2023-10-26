@@ -127,21 +127,6 @@ extension CompetitionGroupsRepository {
     
     return leagueTables
   }
-  
-//  private func competitionGroupsFromLeagueTable(leagueTables: Results<CompetitionTable>) -> [CompetitionGroup] {
-//    let groudpedLeagueTablesByCountry = Dictionary(grouping: leagueTables) { $0.country?.name ?? ""}
-//    
-//    let competitionGroups = groudpedLeagueTablesByCountry.map { (countryName, tables) in
-//      let competitions = tables.map { Competition(id: $0.id, title: $0.name, logoURL: $0.logo ?? "", type: $0.type) }
-//      let sortedCompetitions = competitions.sorted { $0.id < $1.id }
-//      let countryLogo = tables.first?.country?.flag ?? ""
-//      
-//      return CompetitionGroup(title: countryName, logoURL: countryLogo, competitions: sortedCompetitions)
-//    }
-//    
-//    let sortedCompetitionGroups = competitionGroups.sorted { $0.title < $1.title }
-//    return sortedCompetitionGroups
-//  }
 }
 
 //MARK: - Error Case
