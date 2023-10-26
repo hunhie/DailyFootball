@@ -11,4 +11,5 @@ enum RealmError: Error {
   case initializedFailed
   case writeFailed
   case DataEmpty
+  case outdatedData
 }
