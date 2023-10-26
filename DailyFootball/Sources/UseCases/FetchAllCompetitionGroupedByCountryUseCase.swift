@@ -28,7 +28,7 @@ struct FetchAllCompetitionGroupedByCountryUseCase {
         switch error {
         case .apiError(.serverError), .apiError(.decodingError), .apiError(.timeout), .unknownError, .realmError(.initializedFailed), .realmError(.writeFailed):
           completion(.failure(.dataLoadFailed))
-        case .apiError(.noData), .realmError(.DataEmpty):
+        case .apiError(.noData), .realmError(.DataEmpty), .realmError(.outdatedData):
           completion(.failure(.noDataAvailable))
         case .apiError(.unknownError):
           completion(.failure(.unknownError))
