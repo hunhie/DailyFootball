@@ -12,8 +12,8 @@ struct APIFootballManager {
   
   private let provider = MoyaProvider<APIFootballTarget>()
 
-  func request<Model: Decodable>(_ tager: APIFootballTarget, completion: @escaping (Result<Model, APIFootballError>) -> ()) {
-    provider.request(tager) { result in
+  func request<Model: Decodable>(_ target: APIFootballTarget, completion: @escaping (Result<Model, APIFootballError>) -> ()) {
+    provider.request(target) { result in
       switch result {
       case .success(let response):
         switch response.statusCode {
