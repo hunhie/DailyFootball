@@ -30,20 +30,70 @@ final class UserCompetitionFollowsRepository {
   }
   
   func followCompetition(competition: Competition) throws {
-    guard let realm else {
+    guard let realm = self.realm else {
       throw UserCompetitionFollowsRepositoryError.realmError(.initializedFailed)
     }
     
-    let competitionTable = FollowedCompetitionTable(id: competition.id, title: competition.title, logoURL: competition.logoURL, type: competition.type, country: competition.country)
-    
-    do {
-      try realm.write {
-        realm.add(competitionTable, update: .modified)
+    if let originalCompetition = realm.object(ofType: CompetitionTable.self, forPrimaryKey: competition.id) {
+      
+      let followedCompetition = FollowedCompetitionTable() // FollowCompetitionTable 객체 생성
+      followedCompetition.id = competition.id
+      followedCompetition.logoURL = competition.logoURL
+      followedCompetition.country = competition.country
+      followedCompetition.title = competition.title
+      followedCompetition.type = competition.type
+      
+      let seasons = List<SeasonTable>()
+      originalCompetition.seasons.forEach { existingSeason in
+        let newSeason = SeasonTable()
+        newSeason.year = existingSeason.year
+        newSeason.start = existingSeason.start
+        newSeason.end = existingSeason.end
+        newSeason.current = existingSeason.current
+        
+        // CoverageTable 복사
+        if let originalCoverage = existingSeason.coverage {
+          let newCoverage = CoverageTable()
+          newCoverage.standings = originalCoverage.standings
+          newCoverage.players = originalCoverage.players
+          newCoverage.topScorers = originalCoverage.topScorers
+          newCoverage.topAssists = originalCoverage.topAssists
+          newCoverage.topCards = originalCoverage.topCards
+          newCoverage.injuries = originalCoverage.injuries
+          newCoverage.predictions = originalCoverage.predictions
+          newCoverage.odds = originalCoverage.odds
+          
+          // FixturesTable 복사
+          if let originalFixtures = originalCoverage.fixtures {
+            let newFixtures = FixturesTable()
+            newFixtures.events = originalFixtures.events
+            newFixtures.lineups = originalFixtures.lineups
+            newFixtures.statisticsFixtures = originalFixtures.statisticsFixtures
+            newFixtures.statisticsPlayers = originalFixtures.statisticsPlayers
+            newCoverage.fixtures = newFixtures
+          }
+          
+          newSeason.coverage = newCoverage
+        }
+        
+        seasons.append(newSeason)
       }
-    } catch {
+      
+      followedCompetition.seasons = seasons // FollowCompetitionTable에 seasons 할당
+      
+      do {
+        try realm.write {
+          realm.add(followedCompetition) // FollowCompetitionTable 객체 저장
+        }
+      } catch {
+        throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+      }
+    } else {
       throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
     }
   }
+  
+  
   
   func unfollowCompetition(competition: Competition) throws {
     guard let realm else {
