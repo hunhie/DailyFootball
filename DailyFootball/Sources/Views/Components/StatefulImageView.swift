@@ -22,7 +22,7 @@ final class StatefulImageView<T: Hashable>: UIImageView {
   
   private func updateImageForCurrentState() {
     if let state = currentState, let img = stateImages[state] {
-      self.image = img
+      self.image = img.withRenderingMode(.alwaysTemplate)
     }
   }
 }
