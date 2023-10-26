@@ -18,15 +18,14 @@ final class CompetitionGroupCell: UITableViewCell {
   
   private lazy var containerView: UIView = {
     let view = UIView()
-    view.backgroundColor = .white
-    view.layer.cornerRadius = 12
+    view.backgroundColor = UIColor.appColor(for: .background)
     return view
   }()
   
   private lazy var logoImageView: UIImageView = {
     let view = UIImageView()
     view.contentMode = .scaleAspectFill
-    view.layer.cornerRadius = 16
+    view.layer.cornerRadius = 12
     view.layer.borderColor = UIColor.systemGray6.cgColor
     view.layer.borderWidth = 0.5
     view.clipsToBounds = true
@@ -43,9 +42,9 @@ final class CompetitionGroupCell: UITableViewCell {
   private lazy var expansionArrowView: StatefulImageView = {
     let view = StatefulImageView<ExpansionState>()
     view.contentMode = .scaleToFill
-    view.tintColor = .systemGray3
-    view.setImage(UIImage(systemName: "chevron.down"), forState: .collapsed)
-    view.setImage(UIImage(systemName: "chevron.up"), forState: .expanded)
+    view.tintColor = UIColor.appColor(for: .accessory)
+    view.setImage(UIImage(named: "chevron.down"), forState: .collapsed)
+    view.setImage(UIImage(named: "chevron.up"), forState: .expanded)
     return view
   }()
   
@@ -71,22 +70,23 @@ final class CompetitionGroupCell: UITableViewCell {
   
   var isExpanded: Bool = false {
     didSet {
-      updateCornerRadiusForExpansionState(isExpanded: isExpanded)
       updateExpansionArrowForExpansionState(isExpanded: isExpanded)
     }
   }
+  
+  var competitionGroup: CompetitionGroup?
   
   private var animationWorkItem: DispatchWorkItem?
   
   public func configureView(with competitionGroup: CompetitionGroup) {
     isExpanded = competitionGroup.isExpanded
-    
+    self.competitionGroup = competitionGroup
     setLogoImage(competitionGroup)
     setTitle(competitionGroup)
   }
   
   private func setCellUI() {
-    backgroundColor = .systemGray5
+    backgroundColor = UIColor.appColor(for: .subBackground)
     selectionStyle = .none
   }
   
@@ -98,14 +98,14 @@ final class CompetitionGroupCell: UITableViewCell {
     
     containerView.snp.makeConstraints { make in
       make.top.equalToSuperview().offset(10)
-      make.horizontalEdges.equalToSuperview().inset(14)
+      make.horizontalEdges.equalToSuperview()
       make.bottom.equalToSuperview().offset(0)
     }
     
     logoImageView.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
       make.leading.equalToSuperview().offset(20)
-      make.size.equalTo(28)
+      make.size.equalTo(24)
     }
     
     titleLabel.snp.makeConstraints { make in
@@ -116,33 +116,18 @@ final class CompetitionGroupCell: UITableViewCell {
     expansionArrowView.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
       make.trailing.equalToSuperview().offset(-20)
-      make.size.equalTo(17)
+      make.size.equalTo(12)
     }
   }
   
   private func setLogoImage(_ data: CompetitionGroup) {
     if let imageSource = URL(string: data.logoURL) {
-      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
+      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor()), .transition(.fade(0.7))])
     }
   }
   
   private func setTitle(_ data: CompetitionGroup) {
     titleLabel.text = data.title
-  }
-  
-  private func updateCornerRadiusForExpansionState(isExpanded: Bool) {
-    let allCorners: CACornerMask = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
-    let topCorners: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-    
-    animationWorkItem?.cancel()
-    self.containerView.layer.maskedCorners = topCorners
-    if !isExpanded {
-      let workItem = DispatchWorkItem {
-        self.containerView.layer.maskedCorners = allCorners
-      }
-      animationWorkItem = workItem
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.23, execute: workItem)
-    }
   }
   
   private func updateExpansionArrowForExpansionState(isExpanded: Bool) {

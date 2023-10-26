@@ -18,13 +18,13 @@ final class CompetitionCell: UITableViewCell {
   
   private lazy var dividerView: DividerView = {
     let view = DividerView()
-    view.setBackgroundColor(backgroundColor: .systemGray5)
+    view.setBackgroundColor(backgroundColor: UIColor.appColor(for: .subBackground))
     return view
   }()
   
   private lazy var containerView: UIView = {
     let view = UIView()
-    view.backgroundColor = .white
+    view.backgroundColor = UIColor.appColor(for: .background)
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
     view.isUserInteractionEnabled = true
@@ -51,19 +51,19 @@ final class CompetitionCell: UITableViewCell {
     let config = UIButton.Configuration.plain()
     let view = StatefulButton<FollowButtonState>(config: config)
     
-    var followAttrString = AttributedString.init("팔로우")
+    var followAttrString = AttributedString.init(LocalizedStrings.TabBar.Leagues.followButton.localizedValue)
     followAttrString.font = .systemFont(ofSize: 14, weight: .bold)
     
-    var followingAttrString = AttributedString.init("팔로잉")
+    var followingAttrString = AttributedString.init(LocalizedStrings.TabBar.Leagues.followingButton.localizedValue)
     followingAttrString.font = .systemFont(ofSize: 14, weight: .bold)
     
     view.setAttributedTitleWithColor(followAttrString, .white, forState: .follow)
     view.setAttributedTitleWithColor(followingAttrString, .white, forState: .following)
     
     view.setBackgroundColor(.systemBlue, forState: .follow)
-    view.setBackgroundColor(.systemGray3, forState: .following)
+    view.setBackgroundColor(UIColor.appColor(for: .accessory), forState: .following)
     
-    view.layer.cornerRadius = 12
+    view.layer.cornerRadius = 6
     view.addTarget(self, action: #selector(followButtonTapped), for: .touchUpInside)
     return view
   }()
@@ -79,17 +79,18 @@ final class CompetitionCell: UITableViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
-  var isFollowed: Bool = false {
+  var competition: Competition? {
     didSet {
-      setFollowButton(isFollowed)
+      guard let competition else { return }
+      setFollowButton(competition.isFollowed)
     }
   }
   
-  var followAction: ((Bool) -> ())?
-  var tapAction: (() -> ())?
+  var followAction: ((Competition) -> ())?
+  var tapAction: ((Competition) -> ())?
   
   public func configureView(with competition: Competition) {
-    setFollowButton(competition.isFollowed)
+    self.competition = competition
     setLogoImage(competition)
     setTitle(competition)
   }
@@ -103,7 +104,7 @@ final class CompetitionCell: UITableViewCell {
     
     containerView.snp.makeConstraints { make in
       make.top.equalToSuperview()
-      make.horizontalEdges.equalToSuperview().inset(14)
+      make.horizontalEdges.equalToSuperview()
       make.bottom.equalToSuperview()
     }
     
@@ -115,7 +116,7 @@ final class CompetitionCell: UITableViewCell {
     logoImageView.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
       make.leading.equalToSuperview().offset(20)
-      make.size.equalTo(25)
+      make.size.equalTo(24)
     }
     
     titleLabel.snp.makeConstraints { make in
@@ -137,7 +138,7 @@ final class CompetitionCell: UITableViewCell {
   
   private func setLogoImage(_ data: Competition) {
     if let imageSource = URL(string: data.logoURL) {
-      logoImageView.kf.setImage(with: imageSource)
+      logoImageView.kf.setImage(with: imageSource, options: [.transition(.fade(0.7))])
     }
   }
   
@@ -150,20 +151,12 @@ final class CompetitionCell: UITableViewCell {
   }
   
   @objc func followButtonTapped() {
-    self.followAction?(isFollowed)
+    guard let competition else { return }
+    self.followAction?(competition)
   }
   
   @objc func cellTapped() {
-    self.tapAction?()
-  }
-  
-  public func applyRoundedCorners(isLast: Bool) {
-    if isLast {
-      containerView.layer.cornerRadius = 16
-      containerView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-    } else {
-      containerView.layer.cornerRadius = 0
-      containerView.layer.maskedCorners = []
-    }
+    guard let competition else { return }
+    self.tapAction?(competition)
   }
 }

@@ -13,8 +13,7 @@ final class FollowingCompetitionCell: UITableViewCell {
   
   private lazy var containerView: UIView = {
     let view = UIView()
-    view.backgroundColor = .white
-    view.layer.cornerRadius = 16
+    view.backgroundColor = UIColor.appColor(for: .background)
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
     view.isUserInteractionEnabled = true
@@ -48,7 +47,7 @@ final class FollowingCompetitionCell: UITableViewCell {
     let view = UIImageView()
     view.image = UIImage(systemName: "line.3.horizontal")
     view.contentMode = .scaleAspectFit
-    view.tintColor = .systemGray3
+    view.tintColor = UIColor.appColor(for: .accessory)
     view.isHidden  = true
     return view
   }()
@@ -95,7 +94,6 @@ final class FollowingCompetitionCell: UITableViewCell {
   public func configureView(with competition: Competition) {
     setLogoImage(competition)
     setTitle(competition)
-    
   }
   
   private func setCellUI() {
@@ -119,24 +117,24 @@ final class FollowingCompetitionCell: UITableViewCell {
     
     containerView.snp.makeConstraints { make in
       make.top.equalToSuperview().offset(5)
-      make.horizontalEdges.equalToSuperview().inset(14)
+      make.horizontalEdges.equalToSuperview()
       make.bottom.equalToSuperview().offset(-5)
     }
     
     stackView.snp.makeConstraints { make in
-      make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+      make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20))
     }
     
     deleteButton.snp.makeConstraints { make in
-      make.size.equalTo(23)
+      make.size.equalTo(24)
     }
     
     logoImageView.snp.makeConstraints { make in
-      make.size.equalTo(28)
+      make.size.equalTo(24)
     }
     
     reorderButton.snp.makeConstraints { make in
-      make.size.equalTo(25)
+      make.size.equalTo(24)
     }
   }
   
