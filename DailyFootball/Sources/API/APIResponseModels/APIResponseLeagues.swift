@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - APIResponseLeagues
-struct APIResponseLeagues: Codable {
+struct APIResponseLeagues: Decodable {
   let get: String
   let errors: [String]
   let results: Int
@@ -23,39 +23,39 @@ struct APIResponseLeagues: Codable {
 extension APIResponseLeagues {
   
   // MARK: - Paging
-  struct Paging: Codable {
+  struct Paging: Decodable {
     let current, total: Int
   }
   
   // MARK: - Response
-  struct Response: Codable {
+  struct Response: Decodable {
     let league: League
     let country: Country
     let seasons: [Season]
   }
   
   // MARK: - Country
-  struct Country: Codable {
+  struct Country: Decodable {
     let name: String
     let code: String?
     let flag: String?
   }
   
   // MARK: - League
-  struct League: Codable {
+  struct League: Decodable {
     let id: Int
     let name: String
     let type: TypeEnum
     let logo: String
   }
   
-  enum TypeEnum: String, Codable {
+  enum TypeEnum: String, Decodable {
     case cup = "Cup"
     case league = "League"
   }
   
   // MARK: - Season
-  struct Season: Codable {
+  struct Season: Decodable {
     let year: Int
     let start, end: String
     let current: Bool
@@ -63,7 +63,7 @@ extension APIResponseLeagues {
   }
   
   // MARK: - Coverage
-  struct Coverage: Codable {
+  struct Coverage: Decodable {
     let fixtures: Fixtures
     let standings, players, topScorers, topAssists: Bool
     let topCards, injuries, predictions, odds: Bool
@@ -78,7 +78,7 @@ extension APIResponseLeagues {
   }
   
   // MARK: - Fixtures
-  struct Fixtures: Codable {
+  struct Fixtures: Decodable {
     let events, lineups, statisticsFixtures, statisticsPlayers: Bool
     
     enum CodingKeys: String, CodingKey {
