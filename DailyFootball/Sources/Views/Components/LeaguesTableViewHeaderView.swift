@@ -22,7 +22,7 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
   
   private lazy var titleLabel: UILabel = {
     let view = UILabel()
-    view.textColor = .black
+    view.textColor = .label
     view.font = .systemFont(ofSize: 18, weight: .bold)
     return view
   }()
@@ -38,8 +38,8 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
     var editingAttrString = AttributedString.init("완료")
     editingAttrString.font = .systemFont(ofSize: 17, weight: .regular)
     
-    view.setAttributedTitleWithColor(doneAttrString, .systemBlue, forState: .done)
-    view.setAttributedTitleWithColor(editingAttrString, .systemBlue, forState: .editing)
+    view.setAttributedTitleWithColor(doneAttrString, UIColor.appColor(for: .accentColor), forState: .done)
+    view.setAttributedTitleWithColor(editingAttrString, UIColor.appColor(for: .accentColor), forState: .editing)
     view.currentState = .done
     
     view.isHidden = true
@@ -50,7 +50,7 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
   override init(reuseIdentifier: String?) {
     super.init(reuseIdentifier: reuseIdentifier)
     
-    contentView.backgroundColor = .systemGray5
+    contentView.backgroundColor = UIColor.appColor(for: .subBackground)
     setConstraints()
   }
   
@@ -97,7 +97,6 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
   }
   
   func setVisibility(isHidden: Bool) {
-    self.containerView.isHidden = isHidden
     self.contentView.subviews.forEach {
       $0.isHidden = isHidden
     }
