@@ -12,7 +12,6 @@ final class LeaguesView: UIView {
   
   lazy var tableView: UITableView = {
     let view = UITableView(frame: .zero, style: .grouped)
-    view.backgroundColor = .systemGray5
     view.separatorStyle = .none
     view.rowHeight = 60
     view.dragInteractionEnabled = true
@@ -72,6 +71,10 @@ final class LeaguesView: UIView {
   func showIndicator() {
     activityIndicator.startAnimating()
   }
+  
+  func hideIndicator() {
+    activityIndicator.stopAnimating()
+  }
 }
 
 //MARK: - Data & State Management
@@ -122,8 +125,9 @@ extension LeaguesView {
     let targetItem = Item.competition(SectionedCompetition(competition: competition, sectionIdentifier: .allCompetition))
     if let targetIndexPath = dataSource.indexPath(for: targetItem),
        let targetCell = tableView.cellForRow(at: targetIndexPath) as? CompetitionCell {
-      
-      targetCell.isFollowed = false
+      var competition = competition
+      competition.isFollowed.toggle()
+      targetCell.competition = competition
     }
   }
 }
@@ -166,8 +170,9 @@ extension LeaguesView {
         cell.configureView(with: sectionedCompetition.competition)
         cell.isEditingMode = isEditingFollowingCompetition
         cell.deleteAction = { [weak self] in
-          self?.delegate?.didUnfollow(competition: sectionedCompetition.competition)
-          self?.synchronizaAllCompetitionsForUnFollowed(sectionedCompetition.competition)
+          guard let self else { return }
+          self.delegate?.didUnfollow(competition: sectionedCompetition.competition)
+          self.synchronizaAllCompetitionsForUnFollowed(sectionedCompetition.competition)
         }
         cell.tapAction = { [weak self] in
           guard let self else { return }
@@ -175,23 +180,23 @@ extension LeaguesView {
         }
         return cell
         
-      case .competition(let sectionedCompetition, let isLast):
+      case .competition(let sectionedCompetition, _):
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CompetitionCell.identifier, for: indexPath) as? CompetitionCell else { return nil }
         let competition = sectionedCompetition.competition
         cell.configureView(with: competition)
-        cell.applyRoundedCorners(isLast: isLast)
-        cell.followAction = { [weak self] isfollwed in
+        cell.followAction = { [weak self] item in
           guard let self else { return }
-          if isfollwed {
+          if item.isFollowed {
             self.delegate?.didUnfollow(competition: competition)
+            cell.competition?.isFollowed = false
           } else {
             self.delegate?.didFollow(competition: competition)
+            cell.competition?.isFollowed = true
           }
-          cell.isFollowed.toggle()
         }
-        cell.tapAction = { [weak self] in
+        cell.tapAction = { [weak self] item in
           guard let self else { return }
-          self.delegate?.didTapCompetition(competition: competition)
+          self.delegate?.didTapCompetition(competition: item)
         }
         
         return cell
@@ -237,7 +242,6 @@ extension LeaguesView {
   private func updateAllCompetitionsSnapshot(_ competitionGroups: [CompetitionGroup], animated: Bool) {
     guard let dataSource = self.dataSource else { return }
     dataSource.defaultRowAnimation = .none
-    
     var currentSnapshot = dataSource.snapshot()
     currentSnapshot.deleteItems(currentSnapshot.itemIdentifiers(inSection: .allCompetition))
     
