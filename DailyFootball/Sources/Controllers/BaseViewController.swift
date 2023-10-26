@@ -12,10 +12,10 @@ class BaseViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    setBackgroundColor()
+    setBackgroundColor(with: .background)
   }
   
-  func setBackgroundColor() {
-    view.backgroundColor = .systemBackground
+  func setBackgroundColor(with: UIColor.ColorAsset) {
+    view.backgroundColor = UIColor.appColor(for: with)
   }
 }
