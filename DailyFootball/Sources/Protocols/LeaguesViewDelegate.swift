@@ -11,4 +11,5 @@ protocol LeaguesViewDelegate: AnyObject {
   func didFollow(competition: Competition)
   func didUnfollow(competition: Competition)
   func didTapCompetitionGroup(competitionGroup: CompetitionGroup)
+  func didTapCompetition(competition: Competition)
 }
