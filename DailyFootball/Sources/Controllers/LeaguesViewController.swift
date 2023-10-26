@@ -21,6 +21,7 @@ final class LeaguesViewController: BaseViewController {
     setupNavigation()
     setViewModel()
     
+    viewModel.state.value = .loading
     viewModel.handle(action: .fetchFollowedCompetitions)
     viewModel.handle(action: .fetchCompetitionGroups)
   }
@@ -39,8 +40,9 @@ final class LeaguesViewController: BaseViewController {
       case .error(let error):
         print(error)
       case .loading:
-        return
+        leagueView.showIndicator()
       case .competitionsLoaded(let response):
+        leagueView.hideIndicator()
         leagueView.updateAllCompetitions(with: response, animated: false)
       case .followedCompetitionsLoad(let response, let animated):
         leagueView.updateFollowingCompetitions(with: response, animated: animated)
@@ -71,11 +73,12 @@ final class LeaguesViewController: BaseViewController {
     self.navigationItem.searchController?.obscuresBackgroundDuringPresentation = false
     self.navigationItem.hidesSearchBarWhenScrolling = false
     self.navigationItem.title = LocalizedStrings.TabBar.Leagues.title.localizedValue
-    self.navigationController?.navigationBar.prefersLargeTitles = true
-    self.navigationController?.navigationBar.backgroundColor = .white
+    self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
     
+    self.navigationController?.navigationBar.prefersLargeTitles = true
+    self.navigationController?.navigationBar.backgroundColor = UIColor.appColor(for: .background)
     let navigationBarAppearance = UINavigationBarAppearance()
-    navigationBarAppearance.backgroundColor = .systemBackground
+    navigationBarAppearance.backgroundColor = UIColor.appColor(for: .background)
     
     navigationItem.scrollEdgeAppearance = navigationBarAppearance
     navigationItem.standardAppearance = navigationBarAppearance
@@ -110,19 +113,17 @@ extension LeaguesViewController: UITableViewDelegate {
   
   func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
     guard let currentSection = LeaguesView.Section.allCases[safe: section],
-          let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: LeaguesTableViewHeaderView.identifier) as? LeaguesTableViewHeaderView,
-          let headerHeight = tableView.delegate?.tableView?(tableView, heightForHeaderInSection: section),
-          headerHeight > 1 else { return nil }
+          let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: LeaguesTableViewHeaderView.identifier) as? LeaguesTableViewHeaderView else { return nil }
     
     headerView.delegate = self
     
     switch currentSection {
     case .followingCompetition:
       headerView.showEditButton(true)
-      headerView.setHeaderTitle(title: "즐겨찾기")
+      headerView.setHeaderTitle(title: LocalizedStrings.TabBar.Leagues.sectionFavorite.localizedValue)
     case .allCompetition:
       headerView.showEditButton(false)
-      headerView.setHeaderTitle(title: "모든 리그")
+      headerView.setHeaderTitle(title: LocalizedStrings.TabBar.Leagues.sectionAllCompetition.localizedValue)
     }
     
     return headerView
@@ -131,17 +132,14 @@ extension LeaguesViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
     let isHeaderHidden: Bool
     
-    if let currentSection = LeaguesView.Section.allCases[safe: section], leagueView.activeSections.contains(currentSection) {
+    if let currentSection = LeaguesView.Section.allCases[safe: section],
+       leagueView.activeSections.contains(currentSection) {
       isHeaderHidden = false
     } else {
       isHeaderHidden = true
     }
-    
-    if let headerView = tableView.headerView(forSection: section) as? LeaguesTableViewHeaderView {
-      headerView.setVisibility(isHidden: isHeaderHidden)
-    }
-    
-    return isHeaderHidden ? 0.1 : 50
+
+    return isHeaderHidden ? 0 : 50
   }
   
   func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat { return 0 }
@@ -166,6 +164,11 @@ extension LeaguesViewController: LeaguesViewDelegate {
   
   func didTapCompetitionGroup(competitionGroup: CompetitionGroup) {
     viewModel.handle(action: .toggleCompetitionGroupDetail(competitionGroup))
+  }
+  
+  func didTapCompetition(competition: Competition) {
+    let vc = LeagueDetailViewController(competition: competition, viewModel: viewModel)
+    navigationController?.pushViewController(vc, animated: true)
   }
 }
 
