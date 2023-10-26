@@ -60,8 +60,8 @@ final class LeaguesViewModel {
       handle(action: .searchCompetition(query))
     } else {
       isSearching = false
-      handle(action: .fetchCompetitionGroups)
       handle(action: .fetchFollowedCompetitions)
+      reloadCompetitions()
     }
   }
   
