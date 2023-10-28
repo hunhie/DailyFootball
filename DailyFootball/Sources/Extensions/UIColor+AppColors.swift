@@ -15,6 +15,7 @@ extension UIColor {
     case accentColor = "accentColor"
     case accentDarkAndBlack = "accentDarkAndBlack"
     case accentDarkAndWhite = "accentDarkAndWhite"
+    case subLabel = "subLabel"
     
     var uiColor: UIColor {
       return UIColor(named: self.rawValue) ?? {
