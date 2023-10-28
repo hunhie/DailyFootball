@@ -18,7 +18,7 @@ struct FetchAllCompetitionGroupedByCountryUseCase {
         userCompetitionFollowsRepo.fetchFollowedCompetitions { followResult in
           switch followResult {
           case .success(let followedCompetitions):
-            let data = CompetitionGroupMapper.toEntity(from: response, followedCompetitions: followedCompetitions)
+            let data = CompetitionGroupMapper.mapCompetitionGroups(from: response, followedCompetitions: followedCompetitions)
             completion(.success(data))
           case .failure(_): 
             completion(.failure(.dataLoadFailed))

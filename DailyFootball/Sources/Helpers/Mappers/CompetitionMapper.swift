@@ -9,7 +9,6 @@ import Foundation
 import RealmSwift
 
 struct CompetitionMapper {
-  
   static func mapCoverage(from coverageTable: CoverageTable?) -> Competition.Season.Coverage? {
     guard let coverageTable = coverageTable else { return nil }
     
@@ -45,15 +44,20 @@ struct CompetitionMapper {
     }
   }
   
+  static func mapCountry(from table: CountryTable?) -> Country {
+    return Country(name: table?.name ?? "", code: table?.code ?? "", flagURL: table?.flag ?? "")
+  }
   
-  static func toEntity(from table: Results<FollowedCompetitionTable>) -> [Competition] {
+  static func mapCompetitionInfo(from table: CompetitionInfoTable?) -> CompetitionInfo {
+    return CompetitionInfo(name: table?.name ?? "", type: table?.type ?? "", logoURL: table?.logoURL ?? "")
+  }
+  
+  static func mapCompetitions(from table: Results<FollowedCompetitionTable>) -> [Competition] {
     let competitions: [Competition] = table.map {
       Competition(
         id: $0.id,
-        title: $0.title,
-        logoURL: $0.logoURL,
-        type: $0.type,
-        country: $0.country,
+        info: mapCompetitionInfo(from: $0.info),
+        country: mapCountry(from: $0.country),
         isFollowed: true,
         season: mapSeasons(from: $0.seasons) // 여기서 mapSeasons 함수를 사용하여 SeasonTable을 Competition.Season으로 변환합니다.
       )

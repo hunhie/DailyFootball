@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 struct CompetitionGroupMapper {
-  static func toEntity(from table: Results<CompetitionTable>, followedCompetitions: Results<FollowedCompetitionTable>) -> [CompetitionGroup] {
+  static func mapCompetitionGroups(from table: Results<CompetitionTable>, followedCompetitions: Results<FollowedCompetitionTable>) -> [CompetitionGroup] {
     let groudpedLeagueTablesByCountry = Dictionary(grouping: table) { $0.country?.name ?? ""}
     
     let competitionGroups = groudpedLeagueTablesByCountry.map { (countryName, tables) -> CompetitionGroup in
@@ -17,24 +17,24 @@ struct CompetitionGroupMapper {
         let isFollowed = followedCompetitions.contains(where: { $0.id == competitionTable.id })
 
         let seasons = CompetitionMapper.mapSeasons(from: competitionTable.seasons)
-
+        let leagueInfo = CompetitionMapper.mapCompetitionInfo(from: competitionTable.info)
+        
         return Competition(
           id: competitionTable.id,
-          title: competitionTable.name,
-          logoURL: competitionTable.logo ?? "",
-          type: competitionTable.type,
-          country: competitionTable.country?.name ?? "",
+          info: leagueInfo,
+          country: CountryMapper.mapCountry(from: competitionTable.country),
           isFollowed: isFollowed,
           season: seasons
         )
       }
-      let sortedCompetitions = competitions.sorted { $0.id < $1.id }
-      let countryLogo = tables.first?.country?.flag ?? ""
       
-      return CompetitionGroup(title: countryName, logoURL: countryLogo, competitions: sortedCompetitions)
+      let sortedCompetitions = competitions.sorted { $0.id < $1.id }
+      let country = CountryMapper.mapCountry(from: tables.first?.country)
+      
+      return CompetitionGroup(country: country, competitions: sortedCompetitions)
     }
     
-    let sortedCompetitionGroups = competitionGroups.sorted { $0.title < $1.title }
+    let sortedCompetitionGroups = competitionGroups.sorted { $0.country.name < $1.country.name }
     return sortedCompetitionGroups
   }
 }
