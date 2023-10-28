@@ -15,6 +15,12 @@ class BaseViewController: UIViewController {
     setBackgroundColor(with: .background)
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    
+    AppearanceCheck(self)
+  }
+  
   func setBackgroundColor(with: UIColor.ColorAsset) {
     view.backgroundColor = UIColor.appColor(for: with)
   }
