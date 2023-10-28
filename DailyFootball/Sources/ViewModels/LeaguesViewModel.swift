@@ -15,6 +15,7 @@ final class LeaguesViewModel {
   var filteredFollowedCompetitions: [Competition] = []
   var filteredCompetitionGroups: [CompetitionGroup] = []
   
+  var isEditingFollowingCompetition: Bool = false
   var isSearching: Bool = false
   
   private let fetchCompetitionGroupsUseCase: FetchAllCompetitionGroupedByCountryUseCase
@@ -49,6 +50,9 @@ final class LeaguesViewModel {
       searchCompetition(with: query)
     case .reorderCompetition(from: let from, to: let to):
       reorderFollowedCompetitions(from: from, to: to)
+    case .tapEditOnFollowingSection:
+      self.isEditingFollowingCompetition.toggle()
+      state.value = .followingSectionEditTapped(isEditingFollowingCompetition: isEditingFollowingCompetition)
     case .showIndicator:
       state.value = .loading
     }
@@ -125,12 +129,12 @@ final class LeaguesViewModel {
   
   private func toggleDetail(for competitionGroup: CompetitionGroup) {
     if isSearching {
-      if let index = filteredCompetitionGroups.firstIndex(where: { $0.title == competitionGroup.title }) {
+      if let index = filteredCompetitionGroups.firstIndex(where: { $0.country.name == competitionGroup.country.name }) {
         filteredCompetitionGroups[index].isExpanded.toggle()
         state.value = .competitionGroupExpansionToggled(self.filteredCompetitionGroups)
       }
     } else {
-      if let index = competitionGroups.firstIndex(where: { $0.title == competitionGroup.title }) {
+      if let index = competitionGroups.firstIndex(where: { $0.country.name == competitionGroup.country.name }) {
         competitionGroups[index].isExpanded.toggle()
         state.value = .competitionGroupExpansionToggled(self.competitionGroups)
       }
@@ -144,11 +148,11 @@ final class LeaguesViewModel {
       var modifiedGroup = group
       modifiedGroup.isExpanded = true
       
-      if group.title.lowercased().contains(searchText) {
+      if group.country.name.lowercased().contains(searchText) {
         return modifiedGroup
       } else {
         let filteredCompetitions = group.competitions.filter {
-          $0.title.lowercased().contains(searchText)
+          $0.info.name.lowercased().contains(searchText)
         }
         
         guard !filteredCompetitions.isEmpty else { return nil }
@@ -158,8 +162,8 @@ final class LeaguesViewModel {
     }
     
     filteredFollowedCompetitions = followedCompetitions.filter {
-      let title = $0.title.lowercased()
-      let country = $0.country.lowercased()
+      let title = $0.info.name.lowercased()
+      let country = $0.country.name.lowercased()
       return title.contains(searchText) || country.contains(searchText)
     }
     
@@ -198,6 +202,7 @@ extension LeaguesViewModel {
     case toggleCompetitionGroupDetail(CompetitionGroup)
     case reorderCompetition(from: IndexPath, to: IndexPath)
     case searchCompetition(String)
+    case tapEditOnFollowingSection
     case showIndicator
   }
   
@@ -211,6 +216,7 @@ extension LeaguesViewModel {
     case competitionGroupExpansionToggled([CompetitionGroup])
     case searchResultLoaded(filteredCompetitionGroups: [CompetitionGroup], filteredFollowedCompetitions: [Competition])
     case reorderedFollowedCompetitions(from: IndexPath, to: IndexPath)
+    case followingSectionEditTapped(isEditingFollowingCompetition: Bool)
     case error(Error)
   }
 }

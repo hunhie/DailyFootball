@@ -32,10 +32,10 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
     config.contentInsets = .zero
     let view = StatefulButton<EditButtonState>(config: config)
     
-    var doneAttrString = AttributedString.init("편집")
+    var doneAttrString = AttributedString.init(LocalizedStrings.TabBar.Leagues.doneButton.localizedValue)
     doneAttrString.font = .systemFont(ofSize: 17, weight: .regular)
     
-    var editingAttrString = AttributedString.init("완료")
+    var editingAttrString = AttributedString.init(LocalizedStrings.TabBar.Leagues.editingButton.localizedValue)
     editingAttrString.font = .systemFont(ofSize: 17, weight: .regular)
     
     view.setAttributedTitleWithColor(doneAttrString, UIColor.appColor(for: .accentColor), forState: .done)
@@ -58,13 +58,13 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
     fatalError("init(coder:) has not been implemented")
   }
   
-  weak var delegate: TableViewEditableDelegate?
-  
-  var isEdit: Bool = false {
-    didSet {
-      setEditButton(isEdit)
-    }
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    
+    setEditButton()
   }
+  
+  weak var delegate: TableViewEditableDelegate?
   
   private func setConstraints() {
     contentView.addSubview(containerView)
@@ -102,12 +102,13 @@ final class LeaguesTableViewHeaderView: UITableViewHeaderFooterView {
     }
   }
   
-  private func setEditButton(_ isEdit: Bool) {
+  func setEditButton() {
+    guard let isEdit = delegate?.isEditMode() else { return }
     editButton.currentState = isEdit ? .editing : .done
   }
   
   @objc private func editButtonTapped() {
-    isEdit.toggle()
-    delegate?.didTapEditButton(isEdit)
+    delegate?.didTapEditButton()
+    setEditButton()
   }
 }

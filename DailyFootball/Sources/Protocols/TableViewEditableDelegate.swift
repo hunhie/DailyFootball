@@ -8,6 +8,7 @@
 import Foundation
 
 protocol TableViewEditableDelegate: AnyObject {
-  func didTapEditButton(_ isEdit: Bool)
+  func didTapEditButton()
+  func isEditMode() -> Bool
 }
 

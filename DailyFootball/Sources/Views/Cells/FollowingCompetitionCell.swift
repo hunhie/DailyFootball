@@ -102,13 +102,13 @@ final class FollowingCompetitionCell: UITableViewCell {
   }
   
   private func setLogoImage(_ data: Competition) {
-    if let imageSource = URL(string: data.logoURL) {
+    if let imageSource = URL(string: data.info.logoURL) {
       logoImageView.kf.setImage(with: imageSource)
     }
   }
   
   private func setTitle(_ data: Competition) {
-    titleLabel.text = data.title
+    titleLabel.text = data.info.name
   }
   
   private func setDefaultConstraints() {

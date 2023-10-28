@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol LeaguesViewDelegate: AnyObject {
+protocol LeaguesViewDelegate: TableViewEditableDelegate {
   func didFollow(competition: Competition)
   func didUnfollow(competition: Competition)
   func didTapCompetitionGroup(competitionGroup: CompetitionGroup)

@@ -27,8 +27,6 @@ final class LeaguesView: UIView {
   
   private var dataSource: DataSource?
   
-  private var isEditingFollowingCompetition: Bool = false
-  
   weak var delegate: LeaguesViewDelegate?
   
   var activeSections: Set<Section> = []
@@ -112,11 +110,10 @@ extension LeaguesView {
   func shouldAllowDrag(at indexPath: IndexPath) -> Bool {
     guard let dataSource,
           let section = dataSource.sectionIdentifier(for: indexPath.section) else { return false }
-    return isEditingFollowingCompetition && section == .followingCompetition
+    return section == .followingCompetition
   }
   
   func toggleEditingModeForFollowingCompetitionSection(_ isEdit: Bool) {
-    isEditingFollowingCompetition = isEdit
     reloadSection(.followingCompetition)
   }
   
@@ -168,7 +165,6 @@ extension LeaguesView {
       case .followingCompetition(let sectionedCompetition):
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FollowingCompetitionCell.identifier, for: indexPath) as? FollowingCompetitionCell else { return nil }
         cell.configureView(with: sectionedCompetition.competition)
-        cell.isEditingMode = isEditingFollowingCompetition
         cell.deleteAction = { [weak self] in
           guard let self else { return }
           self.delegate?.didUnfollow(competition: sectionedCompetition.competition)
@@ -178,6 +174,11 @@ extension LeaguesView {
           guard let self else { return }
           self.delegate?.didTapCompetition(competition: sectionedCompetition.competition)
         }
+        
+        if let isEdit = delegate?.isEditMode() {
+          cell.isEditingMode = isEdit
+        }
+      
         return cell
         
       case .competition(let sectionedCompetition, _):
@@ -275,7 +276,7 @@ extension LeaguesView {
     
     let existingItemsForGroup = currentSnapshot.itemIdentifiers(inSection: .allCompetition).filter {
       if case .competitionGroup(let competitionGroup) = $0 {
-        return competitionGroup.title == group.title
+        return competitionGroup.country.name == group.country.name
       }
       return false
     }
