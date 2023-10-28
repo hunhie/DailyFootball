@@ -6,6 +6,15 @@
   
 */
 
+//MARK: - Common
+"common_network_error_title" = "Network Connection Failed";
+"common_network_error_content" = "Please check your internet connection and try again.";
+"common_server_error_title" = "Server Error";
+"common_server_error_content" = "There was a problem with our server. Please try again later.";
+"common_data_empty" = "No data available";
+"common_ok" = "OK";
+"common_cancel" = "Cancel";
+
 // MARK: - Leagues
 "tab_leagues_title" = "Leagues";
 "searchbar_placeholder" = "Find leauges";
@@ -13,8 +22,11 @@
   "button_state_follow" = "Follow";
   "button_state_following" = "Following";
 
-  "section_favorite" = "Favorite";
+  "section_favorite" = "Favorites";
   "section_allCompetition" = "All Competitions";
+
+  "button_state_editing" = "Done";
+  "button_state_done" = "Edit";
 
   // League Detail
   "league_detail_tab_standings" = "Standings";
@@ -48,3 +60,13 @@
 
 // MARK: - More
 "tab_more_title" = "More";
+
+"more_contact" = "Contact Us";
+"more_license" = "License";
+"more_privacy" = "Privacy Policy";
+"more_version" = "Version";
+
+"more_theme" = "Dark theme";
+"more_system" = "System";
+"more_support" = "Support";
+"more_info" = "Info";

@@ -6,6 +6,15 @@
   
 */
 
+//MARK: - Common
+"common_network_error_title" = "네트워크 연결 실패";
+"common_network_error_content" = "네트워크 연결이 원할하지 않습니다. 네트워크 상태를 확인해주세요";
+"common_server_error_title" = "서버 장애";
+"common_server_error_content" = "서버 장애로 인해 서비스 이용이 불가합니다. 잠시 후 다시 시도해주세요.";
+"common_data_empty" = "데이터가 존재하지 않습니다.";
+"common_ok" = "확인";
+"common_cancel" = "취소";
+
 //MARK: - Leagues
 "tab_leagues_title" = "리그";
 "searchbar_placeholder" = "리그 검색";
@@ -15,6 +24,9 @@
 
   "section_favorite" = "즐겨찾기";
   "section_allCompetition" = "모든 리그";
+
+  "button_state_editing" = "완료";
+  "button_state_done" = "편집";
 
   // League Detail
   "league_detail_tab_standings" = "팀 순위";
@@ -48,3 +60,13 @@
 
 //MARK: - More
 "tab_more_title" = "더 보기";
+
+"more_contact" = "문의하기";
+"more_license" = "라이센스";
+"more_privacy" = "개인정보 처리방침";
+"more_version" = "버전 정보";
+
+"more_theme" = "다크 모드";
+"more_system" = "시스템";
+"more_support" = "지원";
+"more_info" = "정보";

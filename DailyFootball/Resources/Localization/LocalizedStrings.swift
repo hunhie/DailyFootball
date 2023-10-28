@@ -21,6 +21,11 @@ enum LocalizedStrings {
   enum Common: String, Localizable {
     case ok = "common_ok"
     case cancel = "common_cancel"
+    case dataEmpty = "common_data_empty"
+    case networkErrorTitle = "common_network_error_title"
+    case networkErrorContent = "common_network_error_content"
+    case serverErrorTitle = "common_server_error_title"
+    case serverErrorContent = "common_server_error_content"
   }
   
   enum TabBar {
@@ -31,6 +36,8 @@ enum LocalizedStrings {
       case followingButton = "button_state_following"
       case sectionFavorite = "section_favorite"
       case sectionAllCompetition = "section_allCompetition"
+      case editingButton = "button_state_editing"
+      case doneButton = "button_state_done"
     }
     
     enum Matches: String, Localizable {
@@ -69,6 +76,22 @@ enum LocalizedStrings {
         case rank = "scorers_header_rank"
         case goals = "scorers_header_goals"
       }
+    }
+  }
+  
+  enum More {
+    enum SettingSection: String, Localizable, CaseIterable {
+      case system = "more_system"
+      case support = "more_support"
+      case info = "more_info"
+    }
+    
+    enum SettingItem: String, Localizable, CaseIterable {
+      case theme = "more_theme"
+      case contact = "more_contact"
+      case license = "more_license"
+      case privacy = "more_privacy"
+      case version = "more_version"
     }
   }
   
