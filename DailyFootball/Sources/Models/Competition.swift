@@ -1,5 +1,5 @@
 //
-//  Competition.swift
+//  League.swift
 //  DailyFootball
 //
 //  Created by walkerhilla on 2023/10/02.
@@ -9,25 +9,10 @@ import Foundation
 
 struct Competition: Hashable {
   var id: Int
-  var title: String
-  var logoURL: String
-  var type: String
-  var country: String
+  var info: CompetitionInfo
+  var country: Country
   var isFollowed: Bool
   var season: [Season]
-  
-  var cpType: CompetitionType {
-    switch type {
-    case "League": return .leauge
-    case "Cup": return .cup
-    default: return .leauge
-    }
-  }
-  
-  enum CompetitionType {
-    case leauge
-    case cup
-  }
   
   static func == (lhs: Competition, rhs: Competition) -> Bool {
     return lhs.id == rhs.id && lhs.isFollowed == rhs.isFollowed
