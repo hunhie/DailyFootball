@@ -9,13 +9,18 @@ import UIKit
 
 final class LeagueDetailScorersViewController: BaseViewController, InnerScrollProvidable {
   
-  var innerScroll: ScrollGestureRestrictable = {
+  let innerScroll: ScrollGestureRestrictable = {
     let view = InnerScrollTableView(frame: .zero, style: .grouped)
     view.rowHeight = 52
     view.separatorStyle = .none
     view.register(LeagueScorersCell.self, forCellReuseIdentifier: LeagueScorersCell.identifier)
     view.register(LeagueDetalScorersTableHeaderView.self, forHeaderFooterViewReuseIdentifier: LeagueDetalScorersTableHeaderView.identifier)
     view.allowsSelection = false
+    return view
+  }()
+  
+  private lazy var activityIndicator: UIActivityIndicatorView = {
+    let view = UIActivityIndicatorView(style: .medium)
     return view
   }()
   
@@ -53,6 +58,8 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    setBackgroundColor(with: .background)
+    setIndicator()
     setupInnerScroll()
     
     viewModel.state.bind { [weak self] state in
@@ -60,20 +67,55 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
       switch state {
       case .idle:
         return
+      case .loading:
+        showIndicator()
+      case .loaded:
+        hideIndicator()
       case .error(let error):
-        print(error)
+//        hideIndicator()
+        errorLabel()
       case .scorersLoaded(let response):
+        isHeaderVisible = true
         applySnapShot(response)
       }
     }
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     
-    setBackgroundColor(with: .background)
+    AppearanceCheck(self)
   }
   
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     
     viewModel.handle(action: .fetchStandings(season: currentSeason, id: competition.id))
+  }
+  
+  private func errorLabel() {
+    let label = UILabel()
+    label.text = LocalizedStrings.Common.dataEmpty.localizedValue
+    view.addSubview(label)
+    label.snp.makeConstraints { make in
+      make.centerX.centerY.equalToSuperview()
+    }
+  }
+  
+  private func setIndicator() {
+    view.addSubview(activityIndicator)
+    view.bringSubviewToFront(activityIndicator)
+    activityIndicator.snp.makeConstraints { make in
+      make.centerX.centerY.equalToSuperview()
+    }
+  }
+  
+  private func showIndicator() {
+    activityIndicator.startAnimating()
+  }
+  
+  private func hideIndicator() {
+    activityIndicator.stopAnimating()
   }
   
   func setupInnerScroll() {
@@ -87,7 +129,7 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
     innerScroll.delegate = self
   }
   
-  func applySnapShot(_ scorers: [Scorer]) {
+  private func applySnapShot(_ scorers: [Scorer]) {
     isHeaderVisible = true
     
     var previousScorer: Scorer? = nil

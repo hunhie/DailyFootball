@@ -121,13 +121,14 @@ final class CompetitionGroupCell: UITableViewCell {
   }
   
   private func setLogoImage(_ data: CompetitionGroup) {
-    if let imageSource = URL(string: data.logoURL) {
+    if let url = data.country.flagURL,
+       let imageSource = URL(string: url) {
       logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor()), .transition(.fade(0.7))])
     }
   }
   
   private func setTitle(_ data: CompetitionGroup) {
-    titleLabel.text = data.title
+    titleLabel.text = data.country.name
   }
   
   private func updateExpansionArrowForExpansionState(isExpanded: Bool) {

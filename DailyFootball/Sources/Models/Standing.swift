@@ -9,7 +9,7 @@ import Foundation
 
 struct Standing: Hashable {
   let rank: Int
-  let team: LeagueTeam
+  let team: Team
   let group: String
   let point: Int
   let goalsDiff: Int
@@ -24,12 +24,6 @@ struct Standing: Hashable {
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(team.id)
-  }
-
-  struct LeagueTeam {
-    let id: Int
-    let name: String
-    let logoURL: String
   }
   
   struct GameRecord {

@@ -34,56 +34,13 @@ final class UserCompetitionFollowsRepository {
       throw UserCompetitionFollowsRepositoryError.realmError(.initializedFailed)
     }
     
-    if let originalCompetition = realm.object(ofType: CompetitionTable.self, forPrimaryKey: competition.id) {
+    if let originalCompetitionTable = realm.object(ofType: CompetitionTable.self, forPrimaryKey: competition.id) {
       
-      let followedCompetition = FollowedCompetitionTable() // FollowCompetitionTable 객체 생성
-      followedCompetition.id = competition.id
-      followedCompetition.logoURL = competition.logoURL
-      followedCompetition.country = competition.country
-      followedCompetition.title = competition.title
-      followedCompetition.type = competition.type
-      
-      let seasons = List<SeasonTable>()
-      originalCompetition.seasons.forEach { existingSeason in
-        let newSeason = SeasonTable()
-        newSeason.year = existingSeason.year
-        newSeason.start = existingSeason.start
-        newSeason.end = existingSeason.end
-        newSeason.current = existingSeason.current
-        
-        // CoverageTable 복사
-        if let originalCoverage = existingSeason.coverage {
-          let newCoverage = CoverageTable()
-          newCoverage.standings = originalCoverage.standings
-          newCoverage.players = originalCoverage.players
-          newCoverage.topScorers = originalCoverage.topScorers
-          newCoverage.topAssists = originalCoverage.topAssists
-          newCoverage.topCards = originalCoverage.topCards
-          newCoverage.injuries = originalCoverage.injuries
-          newCoverage.predictions = originalCoverage.predictions
-          newCoverage.odds = originalCoverage.odds
-          
-          // FixturesTable 복사
-          if let originalFixtures = originalCoverage.fixtures {
-            let newFixtures = FixturesTable()
-            newFixtures.events = originalFixtures.events
-            newFixtures.lineups = originalFixtures.lineups
-            newFixtures.statisticsFixtures = originalFixtures.statisticsFixtures
-            newFixtures.statisticsPlayers = originalFixtures.statisticsPlayers
-            newCoverage.fixtures = newFixtures
-          }
-          
-          newSeason.coverage = newCoverage
-        }
-        
-        seasons.append(newSeason)
-      }
-      
-      followedCompetition.seasons = seasons // FollowCompetitionTable에 seasons 할당
+      let followedCompetitionTable = self.mapFollowedCompetitionTableWithCompetitionTable(with: originalCompetitionTable)
       
       do {
         try realm.write {
-          realm.add(followedCompetition) // FollowCompetitionTable 객체 저장
+          realm.add(followedCompetitionTable) // FollowCompetitionTable 객체 저장
         }
       } catch {
         throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
@@ -147,7 +104,7 @@ final class UserCompetitionFollowsRepository {
                 
                 // FixturesTable 복사
                 if let originalFixtures = originalCoverage.fixtures {
-                  let newFixtures = FixturesTable()
+                  let newFixtures = FixturesInfoTable()
                   newFixtures.events = originalFixtures.events
                   newFixtures.lineups = originalFixtures.lineups
                   newFixtures.statisticsFixtures = originalFixtures.statisticsFixtures
@@ -163,10 +120,8 @@ final class UserCompetitionFollowsRepository {
             
             let followedCompetition = FollowedCompetitionTable(
               id: competition.id,
-              title: competition.title,
-              logoURL: competition.logoURL,
-              type: competition.type,
-              country: competition.country,
+              info: CompetitionInfoTable(id: competition.id, name: competition.info.name, type: competition.info.type, logoURL: competition.info.logoURL),
+              country: CountryMapper.mapCountryTable(from: competition.country),
               seasons: seasons
             )
             
@@ -195,5 +150,11 @@ final class UserCompetitionFollowsRepository {
 extension UserCompetitionFollowsRepository {
   enum UserCompetitionFollowsRepositoryError: Error {
     case realmError(RealmError)
+  }
+}
+
+extension UserCompetitionFollowsRepository {
+  private func mapFollowedCompetitionTableWithCompetitionTable(with table: CompetitionTable) -> FollowedCompetitionTable {
+    return FollowedCompetitionTable(id: table.id, info: table.info, country: table.country, seasons: table.seasons)
   }
 }

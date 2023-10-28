@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 final class CoverageTable: EmbeddedObject {
-  @Persisted var fixtures: FixturesTable?
+  @Persisted var fixtures: FixturesInfoTable?
   @Persisted var standings: Bool
   @Persisted var players: Bool
   @Persisted var topScorers: Bool
@@ -19,7 +19,7 @@ final class CoverageTable: EmbeddedObject {
   @Persisted var predictions: Bool
   @Persisted var odds: Bool
   
-  convenience init(fixtures: FixturesTable, standings: Bool, players: Bool, topScorers: Bool, topAssists: Bool, topCards: Bool, injuries: Bool, predictions: Bool, odds: Bool) {
+  convenience init(fixtures: FixturesInfoTable?, standings: Bool, players: Bool, topScorers: Bool, topAssists: Bool, topCards: Bool, injuries: Bool, predictions: Bool, odds: Bool) {
     self.init()
     self.fixtures = fixtures
     self.standings = standings
@@ -30,5 +30,20 @@ final class CoverageTable: EmbeddedObject {
     self.injuries = injuries
     self.predictions = predictions
     self.odds = odds
+  }
+}
+
+final class FixturesInfoTable: EmbeddedObject {
+  @Persisted var events: Bool
+  @Persisted var lineups: Bool
+  @Persisted var statisticsFixtures: Bool
+  @Persisted var statisticsPlayers: Bool
+  
+  convenience init(events: Bool, lineups: Bool, statisticsFixtures: Bool, statisticsPlayers: Bool) {
+    self.init()
+    self.events = events
+    self.lineups = lineups
+    self.statisticsFixtures = statisticsFixtures
+    self.statisticsPlayers = statisticsPlayers
   }
 }

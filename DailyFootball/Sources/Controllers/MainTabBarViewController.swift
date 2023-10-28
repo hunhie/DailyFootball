@@ -16,6 +16,12 @@ final class MainTabBarViewController: UITabBarController {
     configureTabBar()
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    
+    AppearanceCheck(self)
+  }
+  
   func configureTabBar() {
     let appearance = UITabBarAppearance()
     appearance.configureWithDefaultBackground()

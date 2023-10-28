@@ -21,32 +21,3 @@ final class StandingsTable: Object {
     self.standings = standings
   }
 }
-
-final class TeamTable: Object {
-    @Persisted var id: Int
-    @Persisted var name: String
-    @Persisted var logo: String
-}
-
-final class StandingTable: Object {
-    @Persisted var rank: Int
-    @Persisted var team: TeamTable?
-    @Persisted var points: Int
-    @Persisted var goalsDiff: Int
-    @Persisted var group: String
-    @Persisted var form: String
-    @Persisted var status: String
-    @Persisted var desc: String?
-    @Persisted var all: GameRecordTable?
-    @Persisted var home: GameRecordTable?
-    @Persisted var away: GameRecordTable?
-}
-
-final class GameRecordTable: Object {
-    @Persisted var played: Int
-    @Persisted var win: Int
-    @Persisted var draw: Int
-    @Persisted var lose: Int
-    @Persisted var goalsFor: Int
-    @Persisted var goalsAgainst: Int
-}

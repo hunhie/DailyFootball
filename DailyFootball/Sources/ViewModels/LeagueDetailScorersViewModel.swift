@@ -21,12 +21,18 @@ final class LeagueDetailScorersViewModel {
   }
   
   private func fetchScorers(season: Int, id: Int) {
+    self.state.value = .loading
     fetchLeagueScorersUseCase.execute(season: season, id: id) { result in
       switch result {
       case .success(let response):
-        self.state.value = .scorersLoaded(response)
+        if !response.isEmpty {
+          self.state.value = .loaded
+          self.state.value = .scorersLoaded(response)
+        } else {
+          self.state.value = .error(.dataEmpty)
+        }
       case .failure(let error):
-        self.state.value = .error(error)
+        self.state.value = .error(.serverError)
       }
     }
   }
@@ -40,7 +46,15 @@ extension LeagueDetailScorersViewModel {
   
   enum State {
     case idle
+    case loading
+    case loaded
     case scorersLoaded([Scorer])
-    case error(Error)
+    case error(LeagueDetailScorersViewError)
+  }
+  
+  enum LeagueDetailScorersViewError: Error {
+    case dataEmpty
+    case networkError
+    case serverError
   }
 }

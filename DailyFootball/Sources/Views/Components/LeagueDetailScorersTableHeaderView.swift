@@ -29,6 +29,7 @@ final class LeagueDetalScorersTableHeaderView: UITableViewHeaderFooterView {
     view.text = LocalizedStrings.Leagues.LeagueDetailTab.scorersHeader.rank.localizedValue
     view.textAlignment = .center
     view.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
+    view.sizeToFit()
     return view
   }()
   
@@ -64,10 +65,6 @@ final class LeagueDetalScorersTableHeaderView: UITableViewHeaderFooterView {
     
     stackView.snp.makeConstraints { make in
       make.edges.equalToSuperview().inset(14)
-    }
-    
-    rankLabel.snp.makeConstraints { make in
-      make.width.equalTo(22)
     }
     
     goalsLabel.snp.makeConstraints { make in

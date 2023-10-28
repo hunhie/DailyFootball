@@ -26,6 +26,12 @@ final class LeaguesViewController: BaseViewController {
     viewModel.handle(action: .fetchCompetitionGroups)
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    
+    AppearanceCheck(self)
+  }
+  
   func setLeagueView() {
     leagueView.delegate = self
     leagueView.tableView.delegate = self
@@ -57,6 +63,8 @@ final class LeaguesViewController: BaseViewController {
         leagueView.updateFollowingCompetitions(with: filteredFollowedCompetitions, animated: false)
       case .reorderedFollowedCompetitions(let sourceIndexPath, let destinationIndexPath):
         leagueView.reorderFollowingCompetitions(from: sourceIndexPath, to: destinationIndexPath)
+      case .followingSectionEditTapped(let isEditingFollowingCompetition):
+        leagueView.toggleEditingModeForFollowingCompetitionSection(isEditingFollowingCompetition)
       case .idle:
         return
       }
@@ -125,7 +133,6 @@ extension LeaguesViewController: UITableViewDelegate {
       headerView.showEditButton(false)
       headerView.setHeaderTitle(title: LocalizedStrings.TabBar.Leagues.sectionAllCompetition.localizedValue)
     }
-    
     return headerView
   }
   
@@ -148,8 +155,12 @@ extension LeaguesViewController: UITableViewDelegate {
 }
 
 extension LeaguesViewController: TableViewEditableDelegate {
-  func didTapEditButton(_ isEdit: Bool) {
-    leagueView.toggleEditingModeForFollowingCompetitionSection(isEdit)
+  func isEditMode() -> Bool {
+    return viewModel.isEditingFollowingCompetition
+  }
+  
+  func didTapEditButton() {
+    viewModel.handle(action: .tapEditOnFollowingSection)
   }
 }
 
@@ -204,7 +215,8 @@ extension LeaguesViewController: UITableViewDropDelegate {
   func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
     guard let sourceIndexPath = coordinator.items.first?.sourceIndexPath,
           let draggableItem = coordinator.items.first?.dragItem,
-          let destinationIndexPath = coordinator.destinationIndexPath else { return }
+          let destinationIndexPath = coordinator.destinationIndexPath,
+          sourceIndexPath != destinationIndexPath else { return }
     
     viewModel.handle(action: .reorderCompetition(from: sourceIndexPath, to: destinationIndexPath))
     coordinator.drop(draggableItem, toRowAt: destinationIndexPath)

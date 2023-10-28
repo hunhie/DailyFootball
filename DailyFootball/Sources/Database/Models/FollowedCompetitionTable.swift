@@ -10,18 +10,14 @@ import RealmSwift
 
 final class FollowedCompetitionTable: Object {
   @Persisted(primaryKey: true) var id: Int
-  @Persisted var title: String
-  @Persisted var logoURL: String
-  @Persisted var type: String
-  @Persisted var country: String
+  @Persisted var info: CompetitionInfoTable?
+  @Persisted var country: CountryTable?
   @Persisted var seasons: List<SeasonTable>
   
-  convenience init(id: Int, title: String, logoURL: String, type: String, country: String, seasons: List<SeasonTable>) {
+  convenience init(id: Int, info: CompetitionInfoTable?, country: CountryTable?, seasons: List<SeasonTable>) {
     self.init()
     self.id = id
-    self.title = title
-    self.logoURL = logoURL
-    self.type = type
+    self.info = info
     self.country = country
     self.seasons = seasons
   }

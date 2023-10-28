@@ -19,7 +19,7 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     return view
   }()
   
-  lazy var activityIndicator: UIActivityIndicatorView = {
+  private lazy var activityIndicator: UIActivityIndicatorView = {
     let view = UIActivityIndicatorView(style: .medium)
     return view
   }()
@@ -54,14 +54,20 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    setBackgroundColor(with: .background)
     setupInnerScroll()
+    setIndicator()
     
     viewModel.state.bind { [weak self] state in
       guard let self else { return }
       switch state {
-      case .idle:
+      case .idle: return
+      case .loading:
         showIndicator()
+      case .loaded:
+        hideIndicator()
       case .error(let error):
+        print(error)
         hideIndicator()
         errorLabel()
       case .standingsLoaded(let response):
@@ -70,30 +76,36 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
         applySnapShot(response)
       }
     }
-    
-    setBackgroundColor(with: .background)
   }
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     
     viewModel.handle(action: .fetchStandings(season: currentSeason, id: competition.id))
+    AppearanceCheck(self)
   }
   
-  func errorLabel() {
+  private func errorLabel() {
     let label = UILabel()
-    label.text = "해당 리그에 대한 데이터가 없습니다."
+    label.text = LocalizedStrings.Common.dataEmpty.localizedValue
     view.addSubview(label)
     label.snp.makeConstraints { make in
       make.centerX.centerY.equalToSuperview()
     }
   }
   
-  func showIndicator() {
+  private func setIndicator() {
+    view.addSubview(activityIndicator)
+    activityIndicator.snp.makeConstraints { make in
+      make.centerX.centerY.equalToSuperview()
+    }
+  }
+  
+  private func showIndicator() {
     activityIndicator.startAnimating()
   }
   
-  func hideIndicator() {
+  private func hideIndicator() {
     activityIndicator.stopAnimating()
   }
   
@@ -108,10 +120,10 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     innerScroll.delegate = self
   }
   
-  func applySnapShot(_ standings: [Standing]) {
+  private func applySnapShot(_ standings: [Standing]) {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
     isHeaderVisible = true
-    switch self.competition.cpType {
+    switch self.competition.info.cpType {
     case .cup:
       let groups = Set(standings.map { $0.group }).sorted()
       for group in groups {
@@ -159,7 +171,7 @@ extension LeagueDetailStandingsViewController: UITableViewDelegate {
     
     switch sectionType {
     case .standings:
-      header.configureTitleLabel(title: "순위")
+      header.configureTitleLabel(title: LocalizedStrings.Leagues.LeagueDetailTab.standingsHeader.rank.localizedValue)
     case .group(let groupName):
       header.configureTitleLabel(title: groupName)
     }

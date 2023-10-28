@@ -12,6 +12,7 @@ final class ScorersRepository {
   private var realm: Realm? {
     do {
       let realm = try Realm()
+      print(realm.configuration.fileURL)
       return realm
     } catch {
       print("Error initializing realm: \(error)")

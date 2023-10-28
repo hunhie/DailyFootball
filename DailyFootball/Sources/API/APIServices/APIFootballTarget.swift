@@ -12,6 +12,7 @@ enum APIFootballTarget {
   case leagues
   case standings(season: Int, id: Int)
   case topScorers(season: Int, id: Int)
+  case fixtures(date: String, season: Int, id: Int, timezone: String, status: String?)
 }
 
 extension APIFootballTarget: TargetType {
@@ -20,6 +21,7 @@ extension APIFootballTarget: TargetType {
     case .leagues: return "leagues"
     case .standings: return "standings"
     case .topScorers: return "players/topscorers"
+    case .fixtures: return "fixtures"
     }
   }
   
@@ -28,6 +30,7 @@ extension APIFootballTarget: TargetType {
     case .leagues: return .get
     case .standings: return .get
     case .topScorers: return .get
+    case .fixtures: return .get
     }
   }
   
@@ -39,6 +42,14 @@ extension APIFootballTarget: TargetType {
       return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     case .topScorers(let season, let id):
       let parameters = ["season": "\(season)", "league": "\(id)"]
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
+    case .fixtures(let date, let season, let id, let timezone, let status):
+      var parameters = [String: String]()
+      parameters["date"] = date
+      parameters["season"] = "\(season)"
+      parameters["league"] = "\(id)"
+      parameters["timezone"] = timezone
+      if let status = status { parameters["status"] = status }
       return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     }
   }

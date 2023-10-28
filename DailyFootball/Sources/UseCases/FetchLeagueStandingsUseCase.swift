@@ -15,7 +15,7 @@ struct FetchLeagueStandingsUseCase {
     standingsRepo.fetchData(season: season, id: id) { result in
       switch result {
       case .success(let response):
-        let data = StandingMapper.toEntity(from: response)
+        let data = StandingMapper.mapStandings(from: response)
         completion(.success(data))
       case .failure:
         completion(.failure(.fetchFailed))

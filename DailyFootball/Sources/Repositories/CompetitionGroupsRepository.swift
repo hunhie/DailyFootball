@@ -103,7 +103,7 @@ extension CompetitionGroupsRepository {
       let seasons = List<SeasonTable>()
       response.seasons.forEach { season in
         let coverage = CoverageTable(
-          fixtures: FixturesTable(
+          fixtures: FixturesInfoTable(
             events: season.coverage.fixtures.events,
             lineups: season.coverage.fixtures.lineups,
             statisticsFixtures: season.coverage.fixtures.statisticsFixtures,
@@ -117,12 +117,10 @@ extension CompetitionGroupsRepository {
           predictions: season.coverage.predictions,
           odds: season.coverage.odds
         )
-        
-        let seasonTable = SeasonTable(year: season.year, start: season.start.toDate(), end: season.end.toDate(), current: season.current, coverage: coverage)
+        let seasonTable = SeasonTable(uid: "\(league.id) + \(season.year)",id: league.id, year: season.year, start: Date.fromString(season.start, format: .YYYYMMdd(separator: "-")), end: Date.fromString(season.end, format: .YYYYMMdd(separator: "-")), current: season.current, coverage: coverage)
         seasons.append(seasonTable)
       }
-      
-      return CompetitionTable(id: league.id, name: league.name, type: league.type.rawValue, logo: league.logo, country: country, seasons: seasons)
+      return CompetitionTable(id: league.id, info: CompetitionInfoTable(id: league.id, name: league.name, type: league.type.rawValue, logoURL: league.logo), country: country, seasons: seasons)
     }
     
     return leagueTables

@@ -137,13 +137,13 @@ final class CompetitionCell: UITableViewCell {
   }
   
   private func setLogoImage(_ data: Competition) {
-    if let imageSource = URL(string: data.logoURL) {
+    if let imageSource = URL(string: data.info.logoURL) {
       logoImageView.kf.setImage(with: imageSource, options: [.transition(.fade(0.7))])
     }
   }
   
   private func setTitle(_ data: Competition) {
-    titleLabel.text = data.title
+    titleLabel.text = data.info.name
   }
   
   private func setFollowButton(_ isFollowed: Bool) {

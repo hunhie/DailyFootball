@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 final class CountryTable: Object {
-  @Persisted(primaryKey: true) var name: String
+  @Persisted var name: String
   @Persisted var code: String?
   @Persisted var flag: String?
   @Persisted var updateDate: Date

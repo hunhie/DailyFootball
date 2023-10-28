@@ -62,12 +62,12 @@ final class LeagueDetailHeaderView: DynamicHeaderView {
   }
   
   private func setComponents() {
-    if let url = URL(string: competition.logoURL) {
+    if let url = URL(string: competition.info.logoURL) {
       logoImageView.kf.setImage(with: url)
     }
     
-    titleLabel.text = competition.title
-    countryLabel.text = competition.country
+    titleLabel.text = competition.info.name
+    countryLabel.text = competition.country.name
   }
   
   private func setConstaints() {
