@@ -14,6 +14,7 @@
 "common_data_empty" = "No data available";
 "common_ok" = "OK";
 "common_cancel" = "Cancel";
+"common_no_follow_competition" = "You're not following any leagues yet. \nStart following your favorite ones!";
 
 // MARK: - Leagues
 "tab_leagues_title" = "Leagues";

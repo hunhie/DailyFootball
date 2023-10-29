@@ -26,6 +26,7 @@ enum LocalizedStrings {
     case networkErrorContent = "common_network_error_content"
     case serverErrorTitle = "common_server_error_title"
     case serverErrorContent = "common_server_error_content"
+    case noFollowCompetition = "common_no_follow_competition"
   }
   
   enum TabBar {

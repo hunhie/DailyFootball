@@ -14,6 +14,7 @@
 "common_data_empty" = "데이터가 존재하지 않습니다.";
 "common_ok" = "확인";
 "common_cancel" = "취소";
+"common_no_follow_competition" = "팔로우 중인 리그가 없습니다. \n관심 있는 리그를 팔로우해보세요!";
 
 //MARK: - Leagues
 "tab_leagues_title" = "리그";
