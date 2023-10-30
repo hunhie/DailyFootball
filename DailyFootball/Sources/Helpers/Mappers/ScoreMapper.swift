@@ -9,31 +9,27 @@ import Foundation
 
 struct ScoreMapper: EntityMapperProtocol {
   typealias TableType = ScoreTable?
-  typealias EntityType = Score
+  typealias EntityType = Score?
   
-  static func mapEntity(from table: ScoreTable?) throws -> Score {
-    guard let table else { throw MappingError.missingData }
+  static func mapEntity(from table: ScoreTable?) -> Score? {
+    guard let table else { return nil }
     
-    var scoreDict: EntityType = [:]
+    var scoreDict: Score = [:]
     
-    do {
-      if let halftime = table.halftime {
-        scoreDict[.halfTime] = try GoalsMapper.mapEntity(from: halftime)
-      }
-      
-      if let fulltime = table.fulltime {
-        scoreDict[.fullTime] = try GoalsMapper.mapEntity(from: fulltime)
-      }
-      
-      if let extratime = table.extratime {
-        scoreDict[.extraTime] = try GoalsMapper.mapEntity(from: extratime)
-      }
-      
-      if let penalty = table.penalty {
-        scoreDict[.penalty] = try GoalsMapper.mapEntity(from: penalty)
-      }
-    } catch {
-      throw MappingError.missingData
+    if let halftime = table.halftime {
+      scoreDict[.halfTime] = GoalsMapper.mapEntity(from: halftime)
+    }
+    
+    if let fulltime = table.fulltime {
+      scoreDict[.fullTime] = GoalsMapper.mapEntity(from: fulltime)
+    }
+    
+    if let extratime = table.extratime {
+      scoreDict[.extraTime] = GoalsMapper.mapEntity(from: extratime)
+    }
+    
+    if let penalty = table.penalty {
+      scoreDict[.penalty] = GoalsMapper.mapEntity(from: penalty)
     }
     
     return scoreDict

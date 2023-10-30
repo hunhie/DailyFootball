@@ -1,36 +1,37 @@
 //
-//  FixtureMapper.swift
+//  FixturesMapper.swift
 //  DailyFootball
 //
-//  Created by walkerhilla on 2023/10/27.
+//  Created by walkerhilla on 2023/10/29.
 //
 
 import Foundation
+import RealmSwift
 
 struct FixtureMapper: EntityMapperProtocol {
-  typealias TableType = FixtureTable
-  typealias EntityType = FixtureGroup
+  typealias TableType = List<FixtureDetailTable>
+  typealias EntityType = [Fixture]
   
-  static func mapEntity(from table: TableType) throws -> EntityType {
-    do {
-      let fixtures: [Fixture] = try table.fixtureData.compactMap { data in
-        let timestamp = data.timestamp
-        let matchDay = Date.fromTimeStamp(timestamp)
-        let venue = try VenueMapper.mapEntity(from: data.venue)
-        let status = try MatchStatusMapper.mapEntity(from: data.status)
-        let teams = try TeamMapper.mapEntity(from: data.teams)
-        let goals = try GoalsMapper.mapEntity(from: data.goals)
-        let score = try ScoreMapper.mapEntity(from: data.score)
-        let round = data.round ?? ""
-        let roundComponents = round.components(separatedBy: CharacterSet.decimalDigits.inverted)
-        let roundNumber = roundComponents.filter { !$0.isEmpty }.joined()
-        return Fixture(id: data.fixtureId, matchDay: matchDay, round: roundNumber, venue: venue, status: status, teams: teams, goals: goals, score: score)
-      }
-      let info = CompetitionMapper.mapCompetitionInfo(from: table.info)
-      let country = CountryMapper.mapCountry(from: table.country)
-      return FixtureGroup(season: table.season, info: info, country: country, fixtures: fixtures)
-    } catch {
-      throw MappingError.missingData
+  static func mapEntity(from table: List<FixtureDetailTable>) -> [Fixture] {
+    let sortedTable = table.sorted(by: { $0.timestamp < $1.timestamp })
+    
+    return sortedTable.compactMap { data in
+      let matchDay = Date.fromTimeStamp(data.timestamp)
+      let venue = VenueMapper.mapEntity(from: data.venue)
+      let status = MatchStatusMapper.mapEntity(from: data.status)
+      let teams = TeamMapper.mapEntity(from: data.teams)
+      let goals = GoalsMapper.mapEntity(from: data.goals)
+      let score = ScoreMapper.mapEntity(from: data.score)
+      let round = data.round ?? ""
+      let roundNumber = filterDigits(from: round)
+      
+      return Fixture(id: data.fixtureId, matchDay: matchDay, round: roundNumber, venue: venue, status: status, teams: teams, goals: goals, score: score)
     }
+  }
+  
+  
+  private static func filterDigits(from string: String) -> String {
+    let roundComponents = string.components(separatedBy: CharacterSet.decimalDigits.inverted)
+    return roundComponents.filter { !$0.isEmpty }.joined()
   }
 }

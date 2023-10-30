@@ -39,7 +39,7 @@ struct CompetitionMapper {
       return Competition.Season(
         year: seasonTable.year,
         current: seasonTable.current,
-        coverage: coverage // 여기에 변환된 Coverage 정보를 추가합니다.
+        coverage: coverage
       )
     }
   }
@@ -48,20 +48,25 @@ struct CompetitionMapper {
     return Country(name: table?.name ?? "", code: table?.code ?? "", flagURL: table?.flag ?? "")
   }
   
-  static func mapCompetitionInfo(from table: CompetitionInfoTable?) -> CompetitionInfo {
-    return CompetitionInfo(name: table?.name ?? "", type: table?.type ?? "", logoURL: table?.logoURL ?? "")
+  static func mapCompetitionInfo(from table: CompetitionInfoTable?) throws -> CompetitionInfo {
+    guard let table else { throw MappingError.missingData }
+    return CompetitionInfo(id: table.id, name: table.name , type: table.type , logoURL: table.logoURL ?? "")
   }
   
-  static func mapCompetitions(from table: Results<FollowedCompetitionTable>) -> [Competition] {
-    let competitions: [Competition] = table.map {
-      Competition(
-        id: $0.id,
-        info: mapCompetitionInfo(from: $0.info),
-        country: mapCountry(from: $0.country),
-        isFollowed: true,
-        season: mapSeasons(from: $0.seasons) // 여기서 mapSeasons 함수를 사용하여 SeasonTable을 Competition.Season으로 변환합니다.
-      )
+  static func mapCompetitions(from table: Results<FollowedCompetitionTable>) throws -> [Competition] {
+    do {
+      let competitions: [Competition] = try table.map {
+        Competition(
+          id: $0.id,
+          info: try mapCompetitionInfo(from: $0.info),
+          country: mapCountry(from: $0.country),
+          isFollowed: true,
+          season: mapSeasons(from: $0.seasons) // 여기서 mapSeasons 함수를 사용하여 SeasonTable을 Competition.Season으로 변환합니다.
+        )
+      }
+      return competitions
+    } catch {
+      throw MappingError.missingData
     }
-    return competitions
   }
 }

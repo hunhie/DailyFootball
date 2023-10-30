@@ -8,11 +8,11 @@
 import Foundation
 
 struct GoalsMapper: EntityMapperProtocol {
-  typealias TableType = homeAwayGoalsTable?
-  typealias EntityType = Goals
+  typealias TableType = HomeAwayGoalsTable?
+  typealias EntityType = Goals?
   
-  static func mapEntity(from table: TableType) throws -> Goals {
-    guard let table else { throw MappingError.missingData }
+  static func mapEntity(from table: TableType) -> Goals? {
+    guard let table else { return nil }
     return [
       .home: table.home,
       .away: table.away

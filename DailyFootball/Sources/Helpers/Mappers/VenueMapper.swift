@@ -8,8 +8,8 @@
 import Foundation
 
 struct VenueMapper {
-  static func mapEntity(from table: VenueTable?) throws -> Venue {
-    guard let id = table?.id else { throw MappingError.missingData }
-    return Venue(id: id, name: table?.name, city: table?.city)
+  static func mapEntity(from table: VenueTable?) -> Venue? {
+    guard let table = table else { return nil}
+    return Venue(id: table.id, name: table.name, city: table.city)
   }
 }

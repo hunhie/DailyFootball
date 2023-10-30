@@ -9,11 +9,11 @@ import Foundation
 
 struct MatchStatusMapper: EntityMapperProtocol {
   typealias TableType = StatusTable?
-  typealias EntityType = MatchStatus
+  typealias EntityType = MatchStatus?
   
-  static func mapEntity(from table: TableType) throws -> MatchStatus {
-    guard let short = table?.short else { throw MappingError.missingData }
-    switch short {
+  static func mapEntity(from table: TableType) -> MatchStatus? {
+    guard let table = table else { return nil }
+    switch table.short {
     case "TBD":
       return .scheduled(.toBeDefined)
     case "NS":
@@ -53,7 +53,7 @@ struct MatchStatusMapper: EntityMapperProtocol {
     case "LIVE":
       return .inPlay(.live)
     default:
-      throw MappingError.missingData
+      return nil
     }
   }
 }
