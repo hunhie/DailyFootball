@@ -14,7 +14,7 @@
 "common_data_empty" = "데이터가 존재하지 않습니다.";
 "common_ok" = "확인";
 "common_cancel" = "취소";
-"common_no_follow_competition" = "팔로우 중인 리그가 없습니다. \n관심 있는 리그를 팔로우해보세요!";
+"leagues_no_follow_competition" = "팔로우 중인 리그가 없습니다. \n관심 있는 리그를 팔로우해보세요!";
 
 //MARK: - Leagues
 "tab_leagues_title" = "리그";
@@ -52,6 +52,14 @@
   "matches_tab_yesterday" = "어제";
   "matches_tab_today" = "오늘";
   "matches_tab_tomorrow" = "내일";
+
+  "matches_fixture_available" = "예정된 경기 일정이 없습니다.";
+
+  "matches_fixtureInfo_TBD" = "미정";
+  "matches_fixtureInfo_PPD" = "연기";
+  "matches_fixtureInfo_CAN" = "취소";
+  "matches_fixtureInfo_ABD" = "중단";
+  "matches_fixtureInfo_NPL" = "미진행";
 
 //MARK: - Following
 "tab_following_title" = "팔로잉";

@@ -14,7 +14,7 @@
 "common_data_empty" = "No data available";
 "common_ok" = "OK";
 "common_cancel" = "Cancel";
-"common_no_follow_competition" = "You're not following any leagues yet. \nStart following your favorite ones!";
+"leagues_no_follow_competition" = "You're not following any leagues yet. \nStart following your favorite ones!";
 
 // MARK: - Leagues
 "tab_leagues_title" = "Leagues";
@@ -52,6 +52,15 @@
   "matches_tab_yesterday" = "Yesterday";
   "matches_tab_today" = "Today";
   "matches_tab_tomorrow" = "Tomorrow";
+
+  "matches_fixture_available" = "No scheduled match fixtures available.";
+
+  "matches_fixtureInfo_TBD" = "TBD";
+  "matches_fixtureInfo_PPD" = "PPD";
+  "matches_fixtureInfo_CAN" = "CAN";
+  "matches_fixtureInfo_ABD" = "ABD";
+  "matches_fixtureInfo_NPL" = "NPL";
+
 
 // MARK: - Following
 "tab_following_title" = "Following";

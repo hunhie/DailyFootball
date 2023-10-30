@@ -26,7 +26,6 @@ enum LocalizedStrings {
     case networkErrorContent = "common_network_error_content"
     case serverErrorTitle = "common_server_error_title"
     case serverErrorContent = "common_server_error_content"
-    case noFollowCompetition = "common_no_follow_competition"
   }
   
   enum TabBar {
@@ -39,11 +38,19 @@ enum LocalizedStrings {
       case sectionAllCompetition = "section_allCompetition"
       case editingButton = "button_state_editing"
       case doneButton = "button_state_done"
+      case noFollowCompetition = "leagues_no_follow_competition"
     }
     
     enum Matches: String, Localizable {
       case title = "tab_matches_title"
+      case noFixtureAvailable = "matches_fixture_available"
+      case toBeDefined = "matches_fixtureInfo_TBD"
+      case postponed = "matches_fixtureInfo_PPD"
+      case cancelled = "matches_fixtureInfo_CAN"
+      case abandoned = "matches_fixtureInfo_ABD"
+      case notPlayed = "matches_fixtureInfo_NPL"
     }
+    
     
     enum Following: String, Localizable {
       case title = "tab_following_title"
