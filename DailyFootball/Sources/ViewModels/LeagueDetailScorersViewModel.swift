@@ -21,7 +21,6 @@ final class LeagueDetailScorersViewModel {
   }
   
   private func fetchScorers(season: Int, id: Int) {
-    self.state.value = .loading
     fetchLeagueScorersUseCase.execute(season: season, id: id) { result in
       switch result {
       case .success(let response):
@@ -31,7 +30,8 @@ final class LeagueDetailScorersViewModel {
         } else {
           self.state.value = .error(.dataEmpty)
         }
-      case .failure(let error):
+      case .failure:
+        self.state.value = .loaded
         self.state.value = .error(.serverError)
       }
     }
