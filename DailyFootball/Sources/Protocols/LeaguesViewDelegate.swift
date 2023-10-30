@@ -10,6 +10,6 @@ import Foundation
 protocol LeaguesViewDelegate: TableViewEditableDelegate {
   func didFollow(competition: Competition)
   func didUnfollow(competition: Competition)
-  func didTapCompetitionGroup(competitionGroup: CompetitionGroup)
+  func didTapCompetitionGroup(competitionGroup: CompetitionGroupByCountry)
   func didTapCompetition(competition: Competition)
 }

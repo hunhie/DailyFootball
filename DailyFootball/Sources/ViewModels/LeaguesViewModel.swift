@@ -10,10 +10,10 @@ import Foundation
 final class LeaguesViewModel {
   
   var followedCompetitions: [Competition] = []
-  var competitionGroups: [CompetitionGroup] = []
+  var competitionGroups: [CompetitionGroupByCountry] = []
   
   var filteredFollowedCompetitions: [Competition] = []
-  var filteredCompetitionGroups: [CompetitionGroup] = []
+  var filteredCompetitionGroups: [CompetitionGroupByCountry] = []
   
   var isEditingFollowingCompetition: Bool = false
   var isSearching: Bool = false
@@ -117,7 +117,7 @@ final class LeaguesViewModel {
     }
   }
   
-  private func updateFollowStatus(for targetCompetition: Competition, in competitionGroups: inout [CompetitionGroup], to isFollowed: Bool) {
+  private func updateFollowStatus(for targetCompetition: Competition, in competitionGroups: inout [CompetitionGroupByCountry], to isFollowed: Bool) {
     for (groupIndex, group) in competitionGroups.enumerated() {
       if let compIndex = group.competitions.firstIndex(where: { $0.id == targetCompetition.id }) {
         var competitionsInGroup = group.competitions
@@ -127,7 +127,7 @@ final class LeaguesViewModel {
     }
   }
   
-  private func toggleDetail(for competitionGroup: CompetitionGroup) {
+  private func toggleDetail(for competitionGroup: CompetitionGroupByCountry) {
     if isSearching {
       if let index = filteredCompetitionGroups.firstIndex(where: { $0.country.name == competitionGroup.country.name }) {
         filteredCompetitionGroups[index].isExpanded.toggle()
@@ -144,7 +144,7 @@ final class LeaguesViewModel {
   private func searchCompetition(with searchText: String) {
     let searchText = searchText.lowercased()
     
-    filteredCompetitionGroups = competitionGroups.compactMap { group -> CompetitionGroup? in
+    filteredCompetitionGroups = competitionGroups.compactMap { group -> CompetitionGroupByCountry? in
       var modifiedGroup = group
       modifiedGroup.isExpanded = true
       
@@ -199,7 +199,7 @@ extension LeaguesViewModel {
     case fetchFollowedCompetitions
     case followCompetition(Competition)
     case unfollowCompetition(Competition)
-    case toggleCompetitionGroupDetail(CompetitionGroup)
+    case toggleCompetitionGroupDetail(CompetitionGroupByCountry)
     case reorderCompetition(from: IndexPath, to: IndexPath)
     case searchCompetition(String)
     case tapEditOnFollowingSection
@@ -209,12 +209,12 @@ extension LeaguesViewModel {
   enum State {
     case idle
     case loading
-    case competitionsLoaded([CompetitionGroup])
+    case competitionsLoaded([CompetitionGroupByCountry])
     case followedCompetitionsLoad([Competition], animated: Bool)
     case followedSuccess(Competition)
     case unfollowedSuccess(Competition)
-    case competitionGroupExpansionToggled([CompetitionGroup])
-    case searchResultLoaded(filteredCompetitionGroups: [CompetitionGroup], filteredFollowedCompetitions: [Competition])
+    case competitionGroupExpansionToggled([CompetitionGroupByCountry])
+    case searchResultLoaded(filteredCompetitionGroups: [CompetitionGroupByCountry], filteredFollowedCompetitions: [Competition])
     case reorderedFollowedCompetitions(from: IndexPath, to: IndexPath)
     case followingSectionEditTapped(isEditingFollowingCompetition: Bool)
     case error(Error)

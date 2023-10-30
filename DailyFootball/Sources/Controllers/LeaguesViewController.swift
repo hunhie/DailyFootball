@@ -173,7 +173,7 @@ extension LeaguesViewController: LeaguesViewDelegate {
     viewModel.handle(action: .unfollowCompetition(competition))
   }
   
-  func didTapCompetitionGroup(competitionGroup: CompetitionGroup) {
+  func didTapCompetitionGroup(competitionGroup: CompetitionGroupByCountry) {
     viewModel.handle(action: .toggleCompetitionGroupDetail(competitionGroup))
   }
   

@@ -67,18 +67,15 @@ final class CompetitionGroupCell: UITableViewCell {
   }
   
   var tapAction: (() -> ())?
-  
   var isExpanded: Bool = false {
     didSet {
       updateExpansionArrowForExpansionState(isExpanded: isExpanded)
     }
   }
   
-  var competitionGroup: CompetitionGroup?
+  var competitionGroup: CompetitionGroupByCountry?
   
-  private var animationWorkItem: DispatchWorkItem?
-  
-  public func configureView(with competitionGroup: CompetitionGroup) {
+  public func configureView(with competitionGroup: CompetitionGroupByCountry) {
     isExpanded = competitionGroup.isExpanded
     self.competitionGroup = competitionGroup
     setLogoImage(competitionGroup)
@@ -120,14 +117,16 @@ final class CompetitionGroupCell: UITableViewCell {
     }
   }
   
-  private func setLogoImage(_ data: CompetitionGroup) {
+  private func setLogoImage(_ data: CompetitionGroupByCountry) {
     if let url = data.country.flagURL,
        let imageSource = URL(string: url) {
       logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor()), .transition(.fade(0.7))])
+    } else if data.country.name == "World" {
+      logoImageView.image = UIImage(named: "earth")
     }
   }
   
-  private func setTitle(_ data: CompetitionGroup) {
+  private func setTitle(_ data: CompetitionGroupByCountry) {
     titleLabel.text = data.country.name
   }
   
