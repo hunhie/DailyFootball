@@ -15,6 +15,7 @@ final class LeaguesView: UIView {
     view.separatorStyle = .none
     view.rowHeight = 60
     view.dragInteractionEnabled = true
+    view.backgroundColor = UIColor.appColor(for: .subBackground)
     return view
   }()
   
@@ -81,7 +82,7 @@ extension LeaguesView {
     updateFollowedCompetitionsSnapshot(competitions, animated: animated)
   }
   
-  func updateAllCompetitions(with groups: [CompetitionGroup], animated: Bool) {
+  func updateAllCompetitions(with groups: [CompetitionGroupByCountry], animated: Bool) {
     updateAllCompetitionsSnapshot(groups, animated: animated)
   }
   
@@ -139,7 +140,7 @@ extension LeaguesView {
   enum Item: Hashable {
     case followingCompetition(SectionedCompetition)
     case competition(SectionedCompetition, isLast: Bool = false)
-    case competitionGroup(CompetitionGroup)
+    case competitionGroup(CompetitionGroupByCountry)
   }
   
   struct SectionedCompetition: Hashable {
@@ -240,7 +241,7 @@ extension LeaguesView {
     dataSource.apply(currentSnapshot, animatingDifferences: animated)
   }
   
-  private func updateAllCompetitionsSnapshot(_ competitionGroups: [CompetitionGroup], animated: Bool) {
+  private func updateAllCompetitionsSnapshot(_ competitionGroups: [CompetitionGroupByCountry], animated: Bool) {
     guard let dataSource = self.dataSource else { return }
     dataSource.defaultRowAnimation = .none
     var currentSnapshot = dataSource.snapshot()
@@ -268,38 +269,6 @@ extension LeaguesView {
     }
     
     dataSource.apply(currentSnapshot, animatingDifferences: animated)
-  }
-  
-  func toggleCompetitions(forGroup group: CompetitionGroup, at indexPath: IndexPath) {
-    guard let dataSource = self.dataSource else { return }
-    var currentSnapshot = dataSource.snapshot()
-    
-    let existingItemsForGroup = currentSnapshot.itemIdentifiers(inSection: .allCompetition).filter {
-      if case .competitionGroup(let competitionGroup) = $0 {
-        return competitionGroup.country.name == group.country.name
-      }
-      return false
-    }
-    
-    if group.isExpanded {
-      var newItems: [Item] = []
-      for (index, competition) in group.competitions.enumerated() {
-        let isLast = index == group.competitions.count - 1
-        newItems.append(.competition(SectionedCompetition(competition: competition, sectionIdentifier: .allCompetition), isLast: isLast))
-      }
-      
-      for (index, item) in newItems.enumerated() {
-        currentSnapshot.insertItems([item], afterItem: currentSnapshot.itemIdentifiers(inSection: .allCompetition)[indexPath.row + index])
-      }
-    } else {
-      currentSnapshot.deleteItems(existingItemsForGroup)
-    }
-    
-    let cell = self.tableView.cellForRow(at: indexPath) as? CompetitionGroupCell
-    cell?.isExpanded.toggle()
-    dataSource.apply(currentSnapshot, animatingDifferences: true) {
-      
-    }
   }
   
   private func addFollowedCompetition(_ competition: Competition, animated: Bool) {
