@@ -17,8 +17,12 @@ struct FetchFollowedCompetitionsUseCase {
         if response.isEmpty {
           completion(.success([]))
         } else {
-          let data = CompetitionMapper.mapCompetitions(from: response)
-          completion(.success(data))
+          do {
+            let data = try CompetitionMapper.mapCompetitions(from: response)
+            completion(.success(data))
+          } catch {
+            completion(.failure(.dataLoadFailed))
+          }
         }
       case .failure:
         completion(.failure(.dataLoadFailed))
