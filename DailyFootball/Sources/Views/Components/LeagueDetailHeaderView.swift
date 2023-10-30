@@ -72,7 +72,7 @@ final class LeagueDetailHeaderView: DynamicHeaderView {
   
   private func setConstaints() {
     addSubview(containerView)
-    containerView.addSubview(logoImageView)
+//    containerView.addSubview(logoImageView)
     containerView.addSubview(titleLabel)
     containerView.addSubview(countryLabel)
     
@@ -81,14 +81,15 @@ final class LeagueDetailHeaderView: DynamicHeaderView {
       make.width.lessThanOrEqualToSuperview().multipliedBy(0.9)
     }
     
-    logoImageView.snp.makeConstraints { make in
-      make.top.equalToSuperview()
-      make.centerX.equalToSuperview()
-      make.height.equalTo(50)
-    }
+//    logoImageView.snp.makeConstraints { make in
+//      make.top.equalToSuperview()
+//      make.centerX.equalToSuperview()
+//      make.height.equalTo(50)
+//    }
     
     titleLabel.snp.makeConstraints { make in
-      make.top.equalTo(logoImageView.snp.bottom).offset(20)
+//      make.top.equalTo(logoImageView.snp.bottom).offset(20)
+      make.top.equalToSuperview()
       make.leading.trailing.lessThanOrEqualToSuperview().inset(20)
       make.centerX.equalToSuperview()
     }

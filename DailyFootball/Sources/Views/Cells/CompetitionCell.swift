@@ -10,13 +10,12 @@ import Kingfisher
 import SnapKit
 
 final class CompetitionCell: UITableViewCell {
-  
   enum FollowButtonState {
     case follow
     case following
   }
   
-  private lazy var dividerView: DividerView = {
+  private let dividerView: DividerView = {
     let view = DividerView()
     view.setBackgroundColor(backgroundColor: UIColor.appColor(for: .subBackground))
     return view
@@ -32,14 +31,14 @@ final class CompetitionCell: UITableViewCell {
     return view
   }()
   
-  private lazy var logoImageView: UIImageView = {
+  private let logoImageView: UIImageView = {
     let view = UIImageView()
     view.contentMode = .scaleAspectFit
     view.tintColor = .black
     return view
   }()
   
-  private lazy var titleLabel: UILabel = {
+  private let titleLabel: UILabel = {
     let view = UILabel()
     view.font = .systemFont(ofSize: 15, weight: .regular)
     view.numberOfLines = 1
@@ -98,7 +97,7 @@ final class CompetitionCell: UITableViewCell {
   private func setConstraints() {
     contentView.addSubview(containerView)
     containerView.addSubview(dividerView)
-    containerView.addSubview(logoImageView)
+//    containerView.addSubview(logoImageView)
     containerView.addSubview(titleLabel)
     containerView.addSubview(followButton)
     
@@ -113,15 +112,16 @@ final class CompetitionCell: UITableViewCell {
       make.height.equalTo(1)
     }
     
-    logoImageView.snp.makeConstraints { make in
-      make.centerY.equalToSuperview()
-      make.leading.equalToSuperview().offset(20)
-      make.size.equalTo(24)
-    }
+//    logoImageView.snp.makeConstraints { make in
+//      make.centerY.equalToSuperview()
+//      make.leading.equalToSuperview().offset(20)
+//      make.size.equalTo(24)
+//    }
     
     titleLabel.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
-      make.leading.equalTo(logoImageView.snp.trailing).offset(20)
+//      make.leading.equalTo(logoImageView.snp.trailing).offset(20)
+      make.leading.equalToSuperview().offset(20)
       make.trailing.lessThanOrEqualTo(followButton.snp.leading).offset(-20)
     }
     

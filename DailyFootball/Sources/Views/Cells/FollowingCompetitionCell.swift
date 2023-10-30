@@ -22,7 +22,8 @@ final class FollowingCompetitionCell: UITableViewCell {
   }()
   
   private lazy var stackView: UIStackView = {
-    let view = UIStackView(arrangedSubviews: [deleteButton, logoImageView, titleLabel, reorderButton])
+//    let view = UIStackView(arrangedSubviews: [deleteButton, logoImageView, titleLabel, reorderButton])
+    let view = UIStackView(arrangedSubviews: [deleteButton, titleLabel, reorderButton])
     view.axis = .horizontal
     view.alignment = .center
     view.spacing = 17
@@ -54,7 +55,7 @@ final class FollowingCompetitionCell: UITableViewCell {
   
   private lazy var logoImageView: UIImageView = {
     let view = UIImageView()
-    view.contentMode = .scaleAspectFit
+    view.contentMode = .scaleAspectFill
     view.tintColor = .black
     return view
   }()
@@ -102,9 +103,14 @@ final class FollowingCompetitionCell: UITableViewCell {
   }
   
   private func setLogoImage(_ data: Competition) {
-    if let imageSource = URL(string: data.info.logoURL) {
-      logoImageView.kf.setImage(with: imageSource)
-    }
+//    if let url = data.country.flagURL, let imageSource = URL(string: url) {
+//      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
+//    } else if data.country.name == "World" {
+//      logoImageView.image = UIImage(named: "earth")
+//    }
+//    if let imageSource = URL(string: data.info.logoURL) {
+//      logoImageView.kf.setImage(with: imageSource)
+//    }
   }
   
   private func setTitle(_ data: Competition) {
@@ -130,7 +136,8 @@ final class FollowingCompetitionCell: UITableViewCell {
     }
     
     logoImageView.snp.makeConstraints { make in
-      make.size.equalTo(24)
+      make.width.equalTo(24)
+      make.height.equalTo(16)
     }
     
     reorderButton.snp.makeConstraints { make in
