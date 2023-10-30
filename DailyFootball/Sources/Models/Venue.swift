@@ -8,7 +8,7 @@
 import Foundation
 
 struct Venue {
-  let id: Int
+  let id: Int?
   let name: String?
   let city: String?
 }

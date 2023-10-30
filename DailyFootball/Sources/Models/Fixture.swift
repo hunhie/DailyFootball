@@ -7,15 +7,23 @@
 
 import Foundation
 
-struct Fixture {
+struct Fixture: Hashable {
   let id: Int
   let matchDay: Date?
   let round: String
-  let venue: Venue
-  let status: MatchStatus
-  let teams: Teams
-  let goals: Goals
-  let score: Score
+  let venue: Venue?
+  let status: MatchStatus?
+  let teams: Teams?
+  let goals: Goals?
+  let score: Score?
+  
+  static func == (lhs: Fixture, rhs: Fixture) -> Bool {
+    return lhs.id == rhs.id
+  }
+  
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
+  }
 }
 
 typealias Score = [MatchPeriod: [HomeOrAway: Int?]]

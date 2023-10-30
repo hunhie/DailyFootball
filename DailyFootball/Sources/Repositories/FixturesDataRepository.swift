@@ -1,5 +1,5 @@
 //
-//  FixturesRepository.swift
+//  FixturesDataRepository.swift
 //  DailyFootball
 //
 //  Created by walkerhilla on 2023/10/27.
@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class FixturesRepository {
+final class FixturesDataRepository {
   private var realm: Realm? {
     do {
       let realm = try Realm()
@@ -23,55 +23,61 @@ final class FixturesRepository {
     return APIFootballManager()
   }()
   
-  func fetchData(date: Date, season: Int, ids: [Int], timezone: String, status: String? = nil, completion: @escaping (Result<[FixtureTable], FixturesRepositoryError>) -> ()) {
-    fetchFromDB(date: date, season: season, ids: ids) { [weak self] result in
+  func fetchData(date: Date, targetCompetitions: [(id: Int, season: Int)], status: String? = nil, completion: @escaping (Result<[CompetitionFixtureTable], FixturesRepositoryError>) -> ()) {
+    fetchFromDB(date: date, targetCompetitions: targetCompetitions) { [weak self] result in
       guard let self = self else { return }
       switch result {
       case .success(let response):
         completion(.success(response))
       case .failure:
-        self.fetchFromAPIAndSave(date: date, season: season, ids: ids, status: status, completion: completion)
+        self.fetchFromAPIAndSave(date: date, targetCompetitions: targetCompetitions, status: status, completion: completion)
       }
     }
   }
   
-  private func fetchFromDB(date: Date, season: Int, ids: [Int], completion: @escaping (Result<[FixtureTable], FixturesRepositoryError>) -> ()) {
+  private func fetchFromDB(date: Date, targetCompetitions: [(id: Int, season: Int)], completion: @escaping (Result<[CompetitionFixtureTable], FixturesRepositoryError>) -> ()) {
     guard let realm = self.realm else {
       completion(.failure(.realmError(.initializedFailed)))
       return
     }
     
     let dispatchGroup = DispatchGroup()
-    var retrievedTables: [FixtureTable] = []
-    var outdatedIDs: [Int] = []
+    var retrievedTables: [CompetitionFixtureTable] = []
+    var outdatedCompetitions: [(id: Int, season: Int)] = []
     
-    for id in ids {
+    for (id, season) in targetCompetitions {
       dispatchGroup.enter()
       
-      let data = realm.objects(FixtureTable.self).filter("competitionId == \(id) AND date == %@ AND season == %@", date, "\(season)")
-      
-      if let retrievedData = data.first {
-        let currentDate = Date()
-        let interval = currentDate.timeIntervalSince(retrievedData.update)
+      do {
+        let dateRange = try date.betweenDate()
+        let data = realm.objects(CompetitionFixtureTable.self)
+          .filter("competitionId == \(id) AND date BETWEEN %@", [dateRange.start, dateRange.end])
         
-        if interval <= 3600 {
-          retrievedTables.append(retrievedData)
-          dispatchGroup.leave()
+        if let retrievedData = data.first {
+          let currentDate = Date()
+          let interval = currentDate.timeIntervalSince(retrievedData.update)
+          
+          if interval <= 3600 {
+            retrievedTables.append(retrievedData)
+            dispatchGroup.leave()
+          } else {
+            // 데이터가 오래됐을 경우
+            outdatedCompetitions.append((id, season))
+            dispatchGroup.leave()
+          }
         } else {
-          // 데이터가 오래됐을 경우
-          outdatedIDs.append(id)
+          // 데이터가 없는 경우
+          outdatedCompetitions.append((id, season))
           dispatchGroup.leave()
         }
-      } else {
-        // 데이터가 없는 경우
-        outdatedIDs.append(id)
-        dispatchGroup.leave()
+      } catch {
+        print("An error occurred:", error)
       }
     }
     
     dispatchGroup.notify(queue: .main) {
-      if !outdatedIDs.isEmpty {
-        self.fetchFromAPIAndSave(date: date, season: season, ids: outdatedIDs, status: nil) { apiResult in
+      if !outdatedCompetitions.isEmpty {
+        self.fetchFromAPIAndSave(date: date, targetCompetitions: outdatedCompetitions, status: nil) { apiResult in
           switch apiResult {
           case .success(let freshFixtures):
             retrievedTables.append(contentsOf: freshFixtures)
@@ -101,13 +107,13 @@ final class FixturesRepository {
     }
   }
   
-  private func fetchFromAPIAndSave(date: Date, season: Int, ids: [Int], status: String?, completion: @escaping (Result<[FixtureTable], FixturesRepositoryError>) -> ()) {
+  private func fetchFromAPIAndSave(date: Date, targetCompetitions: [(id: Int, season: Int)], status: String?, completion: @escaping (Result<[CompetitionFixtureTable], FixturesRepositoryError>) -> ()) {
     let timezone = TimeZone.current.identifier
     let date = date.toString(format: .YYYYMMdd(separator: "-"))
     let dispatchGroup = DispatchGroup()
-    var combinedFixtures: [FixtureTable] = []
-    
-    for id in ids {
+    var combinedFixtures: [CompetitionFixtureTable] = []
+    dump(targetCompetitions)
+    for (id, season) in targetCompetitions {
       dispatchGroup.enter()
       apiManager.request(.fixtures(date: date, season: season, id: id, timezone: timezone, status: status)) { [weak self] (result: Result<APIResponseFixtures, APIFootballError>) in
         guard let self else { return }
@@ -136,7 +142,7 @@ final class FixturesRepository {
   }
 }
 
-extension FixturesRepository {
+extension FixturesDataRepository {
   enum FixturesRepositoryError: Error {
     case realmError(RealmError)
     case apiError(APIFootballError)
@@ -144,11 +150,18 @@ extension FixturesRepository {
   }
 }
 
-extension FixturesRepository {
-  private func mapFixtureTable(apiResponse: APIResponseFixtures) -> FixtureTable {
-    let fixtureTable = FixtureTable()
+extension FixturesDataRepository {
+  private func mapCountryWithCompetitionPk(_ pk: Int) -> CountryTable? {
+    guard let realm = self.realm else { return nil }
+    let competition = realm.object(ofType: CompetitionTable.self, forPrimaryKey: pk)
+    return competition?.country
+  }
+  
+  private func mapFixtureTable(apiResponse: APIResponseFixtures) -> CompetitionFixtureTable {
+    let fixtureTable = CompetitionFixtureTable()
     
-    fixtureTable.competitionId = Int(apiResponse.parameters.league) ?? 0
+    let competitionId = Int(apiResponse.parameters.league) ?? 0
+    fixtureTable.competitionId = competitionId
     fixtureTable.season = apiResponse.parameters.season
     if let info = realm?.object(ofType: CompetitionInfoTable.self, forPrimaryKey: fixtureTable.competitionId) {
       fixtureTable.info = info
@@ -157,9 +170,14 @@ extension FixturesRepository {
       fixtureTable.date = date
     }
     fixtureTable.update = Date()
+    
+    dump(apiResponse.response)
+
     if let country = apiResponse.response.first?.league.country,
        let flag = apiResponse.response.first?.league.flag {
       fixtureTable.country = CountryTable(name: country, flag: flag)
+    } else {
+      fixtureTable.country = mapCountryWithCompetitionPk(competitionId)
     }
     
     for response in apiResponse.response {
@@ -170,8 +188,8 @@ extension FixturesRepository {
     return fixtureTable
   }
   
-  private func mapResponseToFixtureData(response: APIResponseFixtures.Response) -> FixtureDataTable {
-    let fixtureData = FixtureDataTable()
+  private func mapResponseToFixtureData(response: APIResponseFixtures.Response) -> FixtureDetailTable {
+    let fixtureData = FixtureDetailTable()
     fixtureData.round = response.league.round
     fixtureData.fixtureId = response.fixture.id
     fixtureData.referee = response.fixture.referee
@@ -218,8 +236,8 @@ extension FixturesRepository {
     return teamTable
   }
   
-  private func mapGoalsToHomeAwayGoalsTable(goals: APIResponseFixtures.Goals) -> homeAwayGoalsTable {
-    let goalsTable = homeAwayGoalsTable()
+  private func mapGoalsToHomeAwayGoalsTable(goals: APIResponseFixtures.Goals) -> HomeAwayGoalsTable {
+    let goalsTable = HomeAwayGoalsTable()
     goalsTable.home = goals.home
     goalsTable.away = goals.away
     return goalsTable

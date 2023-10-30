@@ -19,11 +19,13 @@ struct Standing: Hashable {
   let away: GameRecord
   
   static func == (lhs: Standing, rhs: Standing) -> Bool {
-    lhs.team.id == rhs.team.id
+    lhs.team.id == rhs.team.id && lhs.group == rhs.group && lhs.description == rhs.description
   }
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(team.id)
+    hasher.combine(group)
+    hasher.combine(description)
   }
   
   struct GameRecord {

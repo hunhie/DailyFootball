@@ -11,14 +11,36 @@ import SnapKit
 import Pageboy
 
 final class MatchesViewController: TabmanViewController {
+  enum MatchesDateOption {
+    case yesterday
+    case today
+    case tomorrow
+    
+    var date: Date {
+      switch self {
+      case .yesterday:
+        return Date().addingTimeInterval(-86400)
+      case .today:
+        return Date()
+      case .tomorrow:
+        return Date().addingTimeInterval(86400)
+      }
+    }
+  }
+  let yesterdayViewModel = MatchesViewModel()
+  lazy var yesterdayViewController = MatchesTableViewController(matchesDate: .yesterday, viewModel: yesterdayViewModel)
+
+  let todayViewModel = MatchesViewModel()
+  lazy var todayViewController = MatchesTableViewController(matchesDate: .today, viewModel: todayViewModel)
+
+  let tomorrowViewModel = MatchesViewModel()
+  lazy var tomorrowViewController = MatchesTableViewController(matchesDate: .tomorrow, viewModel: tomorrowViewModel)
   
-  let viewControllers: [UIViewController] = [
-    MatchesTableViewController(),
-    MatchesTableViewController(),
-    MatchesTableViewController()
+  lazy var viewControllers: [UIViewController] = [
+    yesterdayViewController,
+    todayViewController,
+    tomorrowViewController
   ]
-  
-  let viewModel: MatchesViewModel = MatchesViewModel()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -67,7 +89,7 @@ final class MatchesViewController: TabmanViewController {
     bar.layout.separatorWidth = 10
     
     bar.buttons.customize { (button) in
-      button.font = .monospacedDigitSystemFont(ofSize: 16, weight: .semibold)
+      button.font = .monospacedDigitSystemFont(ofSize: 15, weight: .semibold)
       button.contentInset = .init(top: 12, left: 0, bottom: 3, right: 0)
       button.selectedTintColor = .label
       button.tintColor = .label
