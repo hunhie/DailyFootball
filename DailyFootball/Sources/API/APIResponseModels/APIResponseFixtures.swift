@@ -45,7 +45,8 @@ extension APIResponseFixtures {
   // MARK: - Fixture
   struct Fixture: Decodable {
     let id: Int
-    let referee, timezone: String
+    let referee: String?
+    let timezone: String
     let date: String
     let timestamp: Int
     let periods: Periods
@@ -79,7 +80,7 @@ extension APIResponseFixtures {
   
   // MARK: - Venue
   struct Venue: Decodable {
-    let id: Int
+    let id: Int?
     let name, city: String?
   }
   
