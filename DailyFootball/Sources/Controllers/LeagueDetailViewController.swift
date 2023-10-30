@@ -10,7 +10,7 @@ import UIKit
 final class LeagueDetailViewController: DynamicHeaderTabManViewController {
   
   private lazy var followButton: UIBarButtonItem = {
-    let title = competition.isFollowed ? LocalizedStrings.TabBar.Leagues.followingButton.localizedValue : LocalizedStrings.TabBar.Leagues.followButton.localizedValue
+    let title = competition.isFollowed ? LocalizedStrings.TabBar.Leagues.followButton.localizedValue : LocalizedStrings.TabBar.Leagues.followingButton.localizedValue
     let view = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(followButtonTapped))
     
     let attributes: [NSAttributedString.Key: Any] = [
@@ -81,10 +81,10 @@ final class LeagueDetailViewController: DynamicHeaderTabManViewController {
 
   private func setFollowButtonColor() {
     if competition.isFollowed {
-      followButton.title = LocalizedStrings.TabBar.Leagues.followButton.localizedValue
+      followButton.title = LocalizedStrings.TabBar.Leagues.followingButton.localizedValue
       followButton.tintColor = UIColor.appColor(for: .subLabel)
     } else {
-      followButton.title = LocalizedStrings.TabBar.Leagues.followingButton.localizedValue
+      followButton.title = LocalizedStrings.TabBar.Leagues.followButton.localizedValue
       followButton.tintColor = UIColor.appColor(for: .accentColor)
     }
   }
