@@ -19,6 +19,8 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     return view
   }()
   
+  let errorLabel = UILabel()
+  
   private lazy var activityIndicator: UIActivityIndicatorView = {
     let view = UIActivityIndicatorView(style: .medium)
     return view
@@ -66,10 +68,11 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
         showIndicator()
       case .loaded:
         hideIndicator()
+        errorLabel.removeFromSuperview()
       case .error(let error):
-        print(error)
+        applySnapShot([])
         hideIndicator()
-        errorLabel()
+        setErrorLabel()
       case .standingsLoaded(let response):
         hideIndicator()
         isHeaderVisible = true
@@ -85,11 +88,10 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     AppearanceCheck(self)
   }
   
-  private func errorLabel() {
-    let label = UILabel()
-    label.text = LocalizedStrings.Common.dataEmpty.localizedValue
-    view.addSubview(label)
-    label.snp.makeConstraints { make in
+  private func setErrorLabel() {
+    errorLabel.text = LocalizedStrings.Common.dataEmpty.localizedValue
+    view.addSubview(errorLabel)
+    errorLabel.snp.makeConstraints { make in
       make.centerX.centerY.equalToSuperview()
     }
   }
@@ -120,33 +122,51 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     innerScroll.delegate = self
   }
   
+  //  private func applySnapShot(_ standings: [Standing]) {
+  //    var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+  //    isHeaderVisible = true
+  //    switch self.competition.info.cpType {
+  //    case .cup:
+  //      let groups = Set(standings.map { $0.group }).sorted()
+  //      for group in groups {
+  //        snapshot.appendSections([.group(group)])
+  //        let groupStandings = standings.filter { $0.group == group }
+  //        var items: [Item] = []
+  //        groupStandings.forEach { standing in
+  //          items.append(.standing(standing))
+  //        }
+  //        snapshot.appendItems(items, toSection: .group(group))
+  //      }
+  //
+  //    case .leauge:
+  //      snapshot.appendSections([.standings])
+  //      var items: [Item] = []
+  //      standings.forEach { standing in
+  //        items.append(.standing(standing))
+  //      }
+  //      snapshot.appendItems(items, toSection: .standings)
+  //    }
+  //
+  //    datasource.applySnapshotUsingReloadData(snapshot)
+  //  }
+  
   private func applySnapShot(_ standings: [Standing]) {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-    isHeaderVisible = true
-    switch self.competition.info.cpType {
-    case .cup:
-      let groups = Set(standings.map { $0.group }).sorted()
-      for group in groups {
-        snapshot.appendSections([.group(group)])
-        let groupStandings = standings.filter { $0.group == group }
-        var items: [Item] = []
-        groupStandings.forEach { standing in
-          items.append(.standing(standing))
-        }
-        snapshot.appendItems(items, toSection: .group(group))
-      }
+    
+    let groups = Set(standings.map { $0.group }).sorted()
+    
+    for group in groups {
+      snapshot.appendSections([.group(group)])
       
-    case .leauge:
-      snapshot.appendSections([.standings])
-      var items: [Item] = []
-      standings.forEach { standing in
-        items.append(.standing(standing))
-      }
-      snapshot.appendItems(items, toSection: .standings)
+      let groupStandings = standings.filter { $0.group == group }
+      let items = groupStandings.map { Item.standing($0) }
+      
+      snapshot.appendItems(items, toSection: .group(group))
     }
     
     datasource.applySnapshotUsingReloadData(snapshot)
   }
+  
 }
 
 

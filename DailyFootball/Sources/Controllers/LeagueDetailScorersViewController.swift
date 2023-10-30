@@ -59,8 +59,8 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
     super.viewDidLoad()
     
     setBackgroundColor(with: .background)
-    setIndicator()
     setupInnerScroll()
+    setIndicator()
     
     viewModel.state.bind { [weak self] state in
       guard let self else { return }
@@ -71,14 +71,15 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
         showIndicator()
       case .loaded:
         hideIndicator()
-      case .error(let error):
-//        hideIndicator()
+      case .error(_):
         errorLabel()
       case .scorersLoaded(let response):
         isHeaderVisible = true
         applySnapShot(response)
       }
     }
+    
+    viewModel.state.value = .loading
   }
   
   override func viewWillAppear(_ animated: Bool) {
