@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 final class VenueTable: Object {
-    @Persisted(primaryKey: true) var id: Int
+    @Persisted(primaryKey: true) var id: Int?
     @Persisted var name: String?
     @Persisted var city: String?
 }
