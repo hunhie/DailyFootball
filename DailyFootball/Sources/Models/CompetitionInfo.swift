@@ -8,6 +8,7 @@
 import Foundation
 
 struct CompetitionInfo: Hashable {
+  var id: Int
   var name: String
   var type: String
   var logoURL: String

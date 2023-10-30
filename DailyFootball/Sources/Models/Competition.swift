@@ -15,11 +15,11 @@ struct Competition: Hashable {
   var season: [Season]
   
   static func == (lhs: Competition, rhs: Competition) -> Bool {
-    return lhs.id == rhs.id && lhs.isFollowed == rhs.isFollowed
+    return lhs.info.id == rhs.info.id && lhs.isFollowed == rhs.isFollowed
   }
   
   func hash(into hasher: inout Hasher) {
-    hasher.combine(id)
+    hasher.combine(info.id)
     hasher.combine(isFollowed)
   }
   
