@@ -26,7 +26,7 @@
 | iOS | UIKit, UserDefaults|
 |  UI  | `SnapKit` |
 | Reactive | `RxSwift` |
-|  Network  | Moya, Codable, RESTfulAPI |
+|  Network  | Moya, Codable, RESTAPI |
 |  Database  | Realm |
 |  Image  | Kingfisher, SVGKit |
 |  Dependency Manager  | SwiftPackageManager |
@@ -40,3 +40,13 @@
 4. 리그 구단/선수 순위 데이터 제공
 5. 팔로우한 리그 경기 일정 제공
 6. 앱 내 테마 설정
+
+### 트러블 슈팅
+
+#### 1. Nested Scroll 구현 시 상 하위 스크롤 뷰 간의 스크롤 전환이 부자연스러운 문제
+
+**문제 상황**:
+Dynamic HeaderView with Tab Menu UI를 구현하고자 Tabman Library를 사용하여 수직 스크롤 뷰가 중첩되는 구조를 이루었습니다. HeaderView의 높이 값을 기준으로 상 하위 스크롤 뷰 간의 스크롤이 전환되도록 하기 위해 `scrollViewDidScroll` 메서드에서 조건에 따라 각 스크롤 뷰의 `isScrollEnabled` 속성을 컨트롤하도록 구현하였습니다. 그 결과 사용자가 한 번의 스크롤 제스처로 임계 값에 도달할 경우 스크롤이 끊기는 문제 현상이 발생하였습니다. 공식 문서를 확인해보니 UIScrollView는 내부적으로 `PanGestureRecognizer`를 통해 사용자의 제스처 이벤트를 스크롤로 반영하였습니다. 따라서 중첩된 스크롤 뷰가 각각의 PanGestureRecognizer를 가지게 되므로 `isScrollEnabled` 속성을 컨트롤하는 것으로는 제스처가 이어질 수 없었습니다.
+
+**해결**:
+하나의 PanGestureRecognizer로 2개의 스크롤 뷰를 컨트롤하면 되지 않을까? 라는 아이디어로 접근하여 상 하위 스크롤 뷰의 기본 스크롤을 비활성화하고 상위 스크롤 뷰가 `CustomPanGestureRecognizer`를 통해 하위 스크롤 뷰의 `contentOffset`를 직접 조절하는 방식으로 문제를 해결하였습니다.
