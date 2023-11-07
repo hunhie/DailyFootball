@@ -14,3 +14,4 @@
 <img src="https://i.imgur.com/yeUv1m5.gif" width="24%">
 <img src="https://i.imgur.com/aTp5TtC.gif" width="24%">
 </p>
+<i>라이센스 이슈로 인하여 출시된 앱에는 스포츠 클럽, 리그의 로고가 표시되지 않습니다.</i>
