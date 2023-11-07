@@ -49,4 +49,80 @@
 Dynamic HeaderView with Tab Menu UI를 구현하고자 Tabman Library를 사용하여 수직 스크롤 뷰가 중첩되는 구조를 이루었습니다. HeaderView의 높이 값을 기준으로 상 하위 스크롤 뷰 간의 스크롤이 전환되도록 하기 위해 `scrollViewDidScroll` 메서드에서 조건에 따라 각 스크롤 뷰의 `isScrollEnabled` 속성을 컨트롤하도록 구현하였습니다. 그 결과 사용자가 한 번의 스크롤 제스처로 임계 값에 도달할 경우 스크롤이 끊기는 문제 현상이 발생하였습니다. 공식 문서를 확인해보니 UIScrollView는 내부적으로 `PanGestureRecognizer`를 통해 사용자의 제스처 이벤트를 스크롤로 반영하였습니다. 따라서 중첩된 스크롤 뷰가 각각의 PanGestureRecognizer를 가지게 되므로 `isScrollEnabled` 속성을 컨트롤하는 것으로는 제스처가 이어질 수 없었습니다.
 
 **해결**:
-하나의 PanGestureRecognizer로 2개의 스크롤 뷰를 컨트롤하면 되지 않을까? 라는 아이디어로 접근하여 상 하위 스크롤 뷰의 기본 스크롤을 비활성화하고 상위 스크롤 뷰가 `CustomPanGestureRecognizer`를 통해 하위 스크롤 뷰의 `contentOffset`를 직접 조절하는 방식으로 문제를 해결하였습니다.
+하나의 PanGestureRecognizer로 2개의 스크롤 뷰를 컨트롤하면 되지 않을까? 라는 아이디어로 접근하여 상 하위 스크롤 뷰의 기본 스크롤을 비활성화하고 상위 스크롤 뷰에 구현한 `CustomPanGestureRecognizer`를 통해 하위 스크롤 뷰의 `contentOffset`를 직접 조절하는 방식으로 문제를 해결하였습니다.
+
+```Swift
+final class OuterScroll: ScrollDisabledScrollView {
+  weak var innerScrollView: ScrollGestureRestrictable?
+  private weak var customPanGesture: CustomPanGestureRecognizer?
+
+  ...
+  
+  @objc private func handlePanGesture(_ sender: CustomPanGestureRecognizer) {
+    let translation = sender.translation(in: self)
+    let velocity = sender.velocity(in: self)
+    
+    switch sender.state {
+    case .began:
+      scrollAnimator.stop()
+      updateInitialOffsets()
+      handleContentOffset(translation.y)
+      
+    case .changed:
+      handleContentOffset(translation.y)
+      
+    case .cancelled, .ended:
+      handleContentOffset(translation.y)
+      animateScrollVelocity(translation, velocity)
+      
+    default:
+      break
+    }
+  }
+  
+  private func handleContentOffset(_ translation: CGFloat) {
+    guard let innerScrollView = innerScrollView else { return }
+    
+    let calculation = calculateContentOffsets(translation)
+    
+    contentOffset.y = calculation.outerScrollViewOffset
+    innerScrollView.contentOffset.y = calculation.innerScrollViewOffset
+  }
+  
+  private func calculateContentOffsets(_ translation: CGFloat) -> ScrollOffsets { ... }
+}
+```
+
+#### 2. 다수의 비동기 API 응답을 한 번에 처리해야하는 문제
+
+**문제 상황**:
+팔로우한 리그 경기 일정 기능 구현 도중 사용자가 여러 개의 리그를 팔로우할 수 있는 반면 API는 회당 1개의 리그 데이터만 요청할 수 있었습니다. 따라서 여러 비동기 작업들이 완전히 끝난 후에 응답을 뷰 계층이 요구하는 데이터로 처리할 필요성이 있었습니다.
+
+**해결**:
+여러 스레드로 분배된 비동기 작업들의 종료 시점을 추적하기 위해 Dispatch Group를 사용하여 문제를 해결하였습니다.
+
+```Swift
+private func fetchFromDB(date: Date, targetCompetitions: [(id: Int, season: Int)], completion: @escaping (Result<[CompetitionFixtureTable], FixturesRepositoryError>) -> ()) {
+    let dispatchGroup = DispatchGroup()
+    var retrievedTables: [CompetitionFixtureTable] = []
+    var outdatedCompetitions: [(id: Int, season: Int)] = []
+    
+    for (id, season) in targetCompetitions {
+      dispatchGroup.enter()
+      
+      do {
+        let dateRange = try date.betweenDate()
+        let data = realm.objects(CompetitionFixtureTable.self)
+                        .filter("competitionId == \(id) AND date BETWEEN %@", [dateRange.start, dateRange.end])
+
+        ...
+        
+        dispatchGroup.leave()
+      } catch {
+        //Error Handling
+      }
+    }
+    
+    dispatchGroup.notify(queue: .main) { ... }
+  }
+```
