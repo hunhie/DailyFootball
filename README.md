@@ -19,6 +19,11 @@
 <img src="https://i.imgur.com/aTp5TtC.gif" width="24%">
 </p>
 
+### 개발 환경
+- Deployment Target: 16.4
+- Localizations: English, Korean
+- App Appearances: Light, Dark
+
 ### 이런 기술을 사용했어요
 - Architecture: `MVVM`
 - iOS: `UIKit`, `UserDefaults`
@@ -29,7 +34,7 @@
 - Image: `Kingfisher`, `SVGKit`
 - Dependency Manager: `SwiftPackageManager`
 - Firebase: `Crashlytics`, `Analytics`
-- Etc: `Tabman`
+- Etc: `Tabman`, `LicensePlist`
 
 ### 이런 기능들이 있어요
 - 전 세계 1000+ 축구 리그 목록 제공
