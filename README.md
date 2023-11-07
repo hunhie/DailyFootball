@@ -13,8 +13,8 @@
 ### 앱 동작 미리보기
 
 <p align="center" witdh="100%">
-<img src="https://i.imgur.com/Us3xn8T.gif" width="25%">
-<img src="https://i.imgur.com/UCG6qBh.gif" width="25%">
-<img src="https://i.imgur.com/yeUv1m5.gif" width="25%">
-<img src="https://i.imgur.com/aTp5TtC.gif" width="25%">
+<img src="https://i.imgur.com/Us3xn8T.gif" width="24%">
+<img src="https://i.imgur.com/UCG6qBh.gif" width="24%">
+<img src="https://i.imgur.com/yeUv1m5.gif" width="24%">
+<img src="https://i.imgur.com/aTp5TtC.gif" width="24%">
 </p>
