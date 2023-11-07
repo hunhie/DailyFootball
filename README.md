@@ -97,7 +97,7 @@ final class OuterScroll: ScrollDisabledScrollView {
 팔로우한 리그 경기 일정 기능 구현 도중 사용자가 여러 개의 리그를 팔로우할 수 있는 반면 API는 회당 1개의 리그 데이터만 요청할 수 있었습니다. 따라서 여러 비동기 작업들이 완전히 끝난 후에 응답을 뷰 계층이 요구하는 데이터로 처리할 필요성이 있었습니다.
 
 **해결**:
-여러 스레드로 분배된 비동기 작업들의 종료 시점을 추적하기 위해 Dispatch Group를 사용하여 문제를 해결하였습니다.
+여러 스레드로 분배된 비동기 작업들의 종료 시점을 추적하기 위해 `Dispatch Group` 를 사용하여 문제를 해결하였습니다.
 
 ```Swift
 private func fetchFromDB(date: Date, targetCompetitions: [(id: Int, season: Int)], completion: @escaping (Result<[CompetitionFixtureTable], FixturesRepositoryError>) -> ()) {
@@ -123,4 +123,43 @@ private func fetchFromDB(date: Date, targetCompetitions: [(id: Int, season: Int)
     
     dispatchGroup.notify(queue: .main) { ... }
   }
+```
+
+#### 3. API 일일 Rate Limit 초과 문제
+**문제 상황**:
+본 프로젝트에서 사용하는 API Football 무료 플랜의 일일 호출 제한 횟수는 100회입니다. 앱의 기획 특성 상 API 호출이 빈번하게 일어나 제한 횟수를 초과하는 경우가 잦았습니다. Rate Limit을 떠나서 서버 자원 소모를 최소화하는 것이 서비스 운영 측면에서 효과적이라고 판단하였습니다.
+
+**시도한 아이디어**:
+API와 클라이언트 사이에 캐싱 서버를 두어 클라이언트가 캐싱 서버의 데이터를 우선적으로 조회하여 API 호출량을 대폭 감소할 수 있었습니다. 그러나 이는 단지 API 호출량을 줄일 뿐 그만큼 캐싱 서버의 자원을 소모하게 되었습니다. 결과적으로 API 응답을 서버에서 캐싱하는 것은 API 이용 약관을 위배하는 행위로 간주될 수 있기에 시도에 그쳤습니다.
+
+**해결**:
+Endpoint 별 데이터 업데이트 권장 주기에 따라 응답을 로컬 DB에 일정 시간 캐싱하여 API 호출 횟수를 줄일 수 있었습니다. 또한, 로컬에 저장된 데이터는 네트워크 환경에 영향을 받지 않아 쾌적한 사용자 경험을 제공할 수 있습니다.
+
+```Swift
+public func fetchData(season: Int, id: Int, completion: @escaping (Result<List<StandingTable>, StandingsRepositoryError>) -> ()) {
+  fetchFromDB(season: season, id: id) { [weak self] result in
+    guard let self = self else { return }
+    switch result {
+    case .success(let response):
+      //SUCCESS
+    case .failure:
+      self.fetchFromAPIAndSave(season: season, id: id) { ... }
+    }
+  }
+}
+
+private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<Results<StandingsTable>, StandingsRepositoryError>) -> ()) {
+  let data = realm.objects(StandingsTable.self).filter("season == \(season) AND id == \(id)")
+
+  if let latestData = data.first {
+    let currentDate = Date()
+    let interval = currentDate.timeIntervalSince(latestData.update)
+    
+    if interval > 3600 {
+      completion(.failure(.realmError(.outdatedData)))
+    } else {
+      completion(.success(data))
+    }
+  }
+}
 ```
