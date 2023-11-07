@@ -20,26 +20,24 @@
 </p>
 
 ### 이런 기술을 사용했어요
-| Category | Stack |
-|:----:|:-----:|
-| Architecture | `MVVM` |
-| iOS | UIKit, UserDefaults|
-|  UI  | `SnapKit` |
-| Reactive | `RxSwift` |
-|  Network  | Moya, Codable, RESTAPI |
-|  Database  | Realm |
-|  Image  | Kingfisher, SVGKit |
-|  Dependency Manager  | SwiftPackageManager |
-|  Firebase  | Crashlytics, Analytics |
-|  Etc  | Tabman |
+- Architecture: `MVVM`
+- iOS: `UIKit`, `UserDefaults`
+- UI: `SnapKit`
+- Reactive: `RxSwift`
+- Network: `Moya`, `Codable`, `REST API`
+- Database: `Realm`
+- Image: `Kingfisher`, `SVGKit`
+- Dependency Manager: `SwiftPackageManager`
+- Firebase: `Crashlytics`, `Analytics`
+- Etc: `Tabman`
 
 ### 이런 기능들이 있어요
-1. 전 세계 1000+ 축구 리그 목록 제공
-2. 리그 팔로우 기능
-3. 리그 및 국가 검색
-4. 리그 구단/선수 순위 데이터 제공
-5. 팔로우한 리그 경기 일정 제공
-6. 앱 내 테마 설정
+- 전 세계 1000+ 축구 리그 목록 제공
+- 리그 팔로우 기능
+- 리그 및 국가 검색
+- 리그 구단/선수 순위 데이터 제공
+- 팔로우한 리그 경기 일정 제공
+- 앱 내 테마 설정
 
 ### 트러블 슈팅
 
