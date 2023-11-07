@@ -168,3 +168,7 @@ private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<Res
   }
 }
 ```
+
+### 회고
+#### [Daily Football 블로그 회고 글](https://walkerhilla.github.io/posts/DailyFootball-%EC%B6%9C%EC%8B%9C-%ED%9A%8C%EA%B3%A0/)
+4주라는 한정된 시간 동안 기획부터 개발, 출시까지 진행하며 제 스스로의 개발 프로세스에 대해 점검해볼 수 있는 값진 경험이었습니다. 경험해보지 않은 여러 트러블 슈팅을 겪으면서 문제 상황에서 필요한 정보를 리서치하는 방법, 사용해보지 않은 도구를 효과적으로 학습하는 방법 등을 훈련할 수 있었습니다. 첫 출시 프로젝트의 경험을 토대로 올바른 프로세스를 정립하기 위해 노력할 것입니다. 감사합니다.
