@@ -6,16 +6,24 @@
 //
 
 import Foundation
+import RxSwift
 
 struct ReorderFollowedCompetitionsUseCase {
   private let userCompetitionFollowsRepo = UserCompetitionFollowsRepository()
+  let disposeBag = DisposeBag()
   
-  func execute(with reorderedFollowedCompetitions: [Competition]) throws {
-    do {
-      try userCompetitionFollowsRepo.reorderFollowedCompetitions(competitions: reorderedFollowedCompetitions)
-    } catch {
-      throw ReorderFollowedCompetitionsError.reorderFailed
-    }
+  func execute(with reorderedFollowedCompetitions: [Competition]) -> PublishSubject<Void> {
+    let subject = PublishSubject<Void>()
+    
+      let response = userCompetitionFollowsRepo.reorderFollowedCompetitions(competitions: reorderedFollowedCompetitions)
+      response.subscribe { _ in
+        subject.onError(ReorderFollowedCompetitionsError.reorderFailed)
+      } onCompleted: {
+        subject.onCompleted()
+      }
+      .disposed(by: disposeBag)
+    
+    return subject
   }
 }
 
