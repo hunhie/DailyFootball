@@ -7,9 +7,9 @@
 
 import Foundation
 import RealmSwift
+import RxSwift
 
 final class UserCompetitionFollowsRepository {
-  
   private var realm: Realm? {
     do {
       let realm = try Realm()
@@ -20,18 +20,25 @@ final class UserCompetitionFollowsRepository {
     }
   }
   
-  func fetchFollowedCompetitions(completion: @escaping (Result<Results<FollowedCompetitionTable>, UserCompetitionFollowsRepositoryError>) -> ()) {
+  func fetchFollowedCompetitions() -> PublishSubject<Results<FollowedCompetitionTable>> {
+    let subject = PublishSubject<Results<FollowedCompetitionTable>>()
+    
     guard let realm else {
-      completion(.failure(.realmError(.initializedFailed)))
-      return
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.initializedFailed))
+      return subject
     }
+    
     let data = realm.objects(FollowedCompetitionTable.self)
-    completion(.success(data))
+    subject.onNext(data)
+    
+    return subject
   }
   
-  func followCompetition(competition: Competition) throws {
+  func followCompetition(competition: Competition) -> PublishSubject<Void> {
+    let subject = PublishSubject<Void>()
     guard let realm = self.realm else {
-      throw UserCompetitionFollowsRepositoryError.realmError(.initializedFailed)
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.initializedFailed))
+      return subject
     }
     
     if let originalCompetitionTable = realm.object(ofType: CompetitionTable.self, forPrimaryKey: competition.id) {
@@ -42,19 +49,21 @@ final class UserCompetitionFollowsRepository {
         try realm.write {
           realm.add(followedCompetitionTable) // FollowCompetitionTable 객체 저장
         }
+        subject.onCompleted()
       } catch {
-        throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+        subject.onError(UserCompetitionFollowsRepositoryError.realmError(.writeFailed))
       }
     } else {
-      throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.writeFailed))
     }
+    return subject
   }
   
-  
-  
-  func unfollowCompetition(competition: Competition) throws {
-    guard let realm else {
-      throw UserCompetitionFollowsRepositoryError.realmError(.initializedFailed)
+  func unfollowCompetition(competition: Competition) -> PublishSubject<Void> {
+    let subject = PublishSubject<Void>()
+    guard let realm = self.realm else {
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.initializedFailed))
+      return subject
     }
     
     if let competitionTable = realm.object(ofType: FollowedCompetitionTable.self, forPrimaryKey: competition.id) {
@@ -62,15 +71,19 @@ final class UserCompetitionFollowsRepository {
         try realm.write {
           realm.delete(competitionTable)
         }
+        subject.onCompleted()
       } catch {
-        throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+        subject.onError(UserCompetitionFollowsRepositoryError.realmError(.writeFailed))
       }
     }
+    return subject
   }
   
-  func reorderFollowedCompetitions(competitions: [Competition]) throws {
+  func reorderFollowedCompetitions(competitions: [Competition]) -> PublishSubject<Void> {
+    let subject = PublishSubject<Void>()
     guard let realm = self.realm else {
-      throw UserCompetitionFollowsRepositoryError.realmError(.initializedFailed)
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.initializedFailed))
+      return subject
     }
     
     do {
@@ -126,24 +139,31 @@ final class UserCompetitionFollowsRepository {
             )
             
             realm.add(followedCompetition, update: .all)
+            subject.onCompleted()
           } else {
-            throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+            subject.onError(UserCompetitionFollowsRepositoryError.realmError(.writeFailed))
           }
         }
       }
     } catch {
-      throw UserCompetitionFollowsRepositoryError.realmError(.writeFailed)
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.writeFailed))
     }
+    return subject
   }
   
   
-  func isCompetitionFollowed(competition: Competition) -> Bool {
-    guard let realm else { return false }
+  func isCompetitionFollowed(competition: Competition) -> BehaviorSubject<Bool> {
+    let subject = BehaviorSubject<Bool>(value: false)
+    guard let realm = self.realm else {
+      subject.onError(UserCompetitionFollowsRepositoryError.realmError(.initializedFailed))
+      return subject
+    }
     
     let predicate = NSPredicate(format: "id == %@", competition.id)
     let result = realm.objects(FollowedCompetitionTable.self).filter(predicate)
+    subject.onNext(realm.isEmpty)
     
-    return !result.isEmpty
+    return subject
   }
 }
 
