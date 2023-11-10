@@ -3,6 +3,7 @@
 ### [App Store 바로가기](https://apps.apple.com/kr/app/%EB%8D%B0%EC%9D%BC%EB%A6%AC-%ED%92%8B%EB%B3%BC-%EC%B6%95%EA%B5%AC-%EA%B2%B0%EA%B3%BC/id6469016258)
 
 ### 프로젝트 개요
+
 - 인원: 1명
 - 기간: 2023.09.27 ~ 2023.10.31
 
@@ -20,11 +21,13 @@
 </p>
 
 ### 개발 환경
+
 - Deployment Target: 16.4
 - Localizations: English, Korean
 - App Appearances: Light, Dark
 
 ### 이런 기술을 사용했어요
+
 - Architecture: `MVVM`
 - iOS: `UIKit`, `UserDefaults`
 - UI: `SnapKit`
@@ -37,6 +40,7 @@
 - Etc: `Tabman`, `LicensePlist`
 
 ### 이런 기능들이 있어요
+
 - 전 세계 1000+ 축구 리그 목록 제공
 - 리그 팔로우 기능
 - 리그 및 국가 검색
@@ -45,22 +49,27 @@
 - 앱 내 테마 설정
 
 ### 주요 성과
-* `DiffableDataSource`를 사용하여 **UX 사용자 경험 개선**:   
-리그 목록 데이터가 1000개가 넘어 컨텐츠를 효과적으로 Present 하기 위함. 리그 데이터를 국가 단위로 묶어 Expadable Cell 형태로 구성하여 사용자의 컨텐츠 탐색 피로도를 개선함
-* 비동기 네트워크 통신으로 **앱 성능 최적화**:   
-서비스 내 대부분의 컨텐츠를 API 응답으로 구성하여 네트워크 통신 작업이 사용자 경험을 해치지 않도록 설계함. `escaping closure` 구문을 통해 오래걸리는 작업들을 비동기로 실행하여 앱 성능과 사용자 경험을 향상함
-* API 응답을 로컬 DB 캐싱하여 **서버 자원 소모 80% 감소** 및 **로딩 시간 단축**:   
-API 응답 데이터를 일정 시간 동안 `Realm` 로컬 Database에 저장하여 캐싱 이전에 비해 API 호출량을 80% 가량 절약함
-* `Router Pattern`을 도입하여 **API 의존 문제** 해결 및 **확장성** 향상:   
-서비스가 특정 API에 지나치게 의존하던 문제를 해결하기 위해 네트워크 통신 로직을 Router 패턴을 활용하여 재설계하였음. 이로써 API 로직의 확장성과 유지보수성을 높임.
+
+- `DiffableDataSource`를 사용하여 **UX 사용자 경험 개선**:  
+  리그 목록 데이터가 1000개가 넘어 컨텐츠를 효과적으로 Present 하기 위함. 리그 데이터를 국가 단위로 묶어 Expadable Cell 형태로 구성하여 사용자의 컨텐츠 탐색 피로도를 개선함
+- 비동기 네트워크 통신으로 **앱 성능 최적화**:  
+  서비스 내 대부분의 컨텐츠를 API 응답으로 구성하여 네트워크 통신 작업이 사용자 경험을 해치지 않도록 설계함. `escaping closure` 구문을 통해 오래걸리는 작업들을 비동기로 실행하여 앱 성능과 사용자 경험을 향상함
+- API 응답을 로컬 DB 캐싱하여 **서버 자원 소모 80% 감소** 및 **로딩 시간 단축**:  
+  API 응답 데이터를 일정 시간 동안 `Realm` 로컬 Database에 저장하여 캐싱 이전에 비해 API 호출량을 80% 가량 절약함
+- `Router Pattern`을 도입하여 **API 의존 문제** 해결 및 **확장성** 향상:  
+  서비스가 특정 API에 지나치게 의존하던 문제를 해결하기 위해 네트워크 통신 로직을 Router 패턴을 활용하여 재설계하였음. 이로써 API 로직의 확장성과 유지보수성을 높임.
+- `Router Pattern`을 도입하여 **API 의존 문제** 해결 및 **확장성** 향상:  
+  서비스가 특정 API에 지나치게 의존하던 문제를 해결하기 위해 네트워크 통신 로직을 Router 패턴을 활용하여 재설계하였음. 이로써 API 로직의 확장성과 유지보수성을 높임.
 
 ### 개발 세부 일정
-| 진행 기간 |  세부 내역 |
-| ------ | ------ |
-| 2023.09.27 - 2023.09.30 | `앱 아이디어 기획`, `유사 서비스 리서치`, `디자인 초안`, `공수 산정` |
+
+| 진행 기간               | 세부 내역                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| 2023.09.27 - 2023.09.30 | `앱 아이디어 기획`, `유사 서비스 리서치`, `디자인 초안`, `공수 산정`                         |
 | 2023.10.01 - 2023.10.13 | `리그 탭 UI 및 기능`, `Realm 테이블 설계`, `API 통신 로직 설계`, `리그 상세 화면 UI 및 기능` |
-| 2023.10.13 - 2023.10.28 | `경기 탭 UI 및 기능`, `버그 수정`, `MVVM 리팩토링` |
-| 2023.10.29 - 2023.10.31 | `Reject 대응`, `앱 출시` |
+| 2023.10.13 - 2023.10.28 | `경기 탭 UI 및 기능`, `버그 수정`, `MVVM 리팩토링`                                           |
+| 2023.10.29 - 2023.10.31 | `Reject 대응`, `앱 출시`                                                                     |
+| 2023.11.10 - 2023.11.12 | `RxSwift 리팩토링 업데이트`                                                                  |
 
 ### 트러블 슈팅
 
@@ -78,38 +87,38 @@ final class OuterScroll: ScrollDisabledScrollView {
   private weak var customPanGesture: CustomPanGestureRecognizer?
 
   ...
-  
+
   @objc private func handlePanGesture(_ sender: CustomPanGestureRecognizer) {
     let translation = sender.translation(in: self)
     let velocity = sender.velocity(in: self)
-    
+
     switch sender.state {
     case .began:
       scrollAnimator.stop()
       updateInitialOffsets()
       handleContentOffset(translation.y)
-      
+
     case .changed:
       handleContentOffset(translation.y)
-      
+
     case .cancelled, .ended:
       handleContentOffset(translation.y)
       animateScrollVelocity(translation, velocity)
-      
+
     default:
       break
     }
   }
-  
+
   private func handleContentOffset(_ translation: CGFloat) {
     guard let innerScrollView = innerScrollView else { return }
-    
+
     let calculation = calculateContentOffsets(translation)
-    
+
     contentOffset.y = calculation.outerScrollViewOffset
     innerScrollView.contentOffset.y = calculation.innerScrollViewOffset
   }
-  
+
   private func calculateContentOffsets(_ translation: CGFloat) -> ScrollOffsets { ... }
 }
 ```
@@ -127,28 +136,29 @@ private func fetchFromDB(date: Date, targetCompetitions: [(id: Int, season: Int)
     let dispatchGroup = DispatchGroup()
     var retrievedTables: [CompetitionFixtureTable] = []
     var outdatedCompetitions: [(id: Int, season: Int)] = []
-    
+
     for (id, season) in targetCompetitions {
       dispatchGroup.enter()
-      
+
       do {
         let dateRange = try date.betweenDate()
         let data = realm.objects(CompetitionFixtureTable.self)
                         .filter("competitionId == \(id) AND date BETWEEN %@", [dateRange.start, dateRange.end])
 
         ...
-        
+
         dispatchGroup.leave()
       } catch {
         //Error Handling
       }
     }
-    
+
     dispatchGroup.notify(queue: .main) { ... }
   }
 ```
 
 #### 3. API 일일 Rate Limit 초과 문제
+
 **문제 상황**:
 본 프로젝트에서 사용하는 API Football 무료 플랜의 일일 호출 제한 횟수는 100회입니다. 앱의 기획 특성 상 API 호출이 빈번하게 일어나 제한 횟수를 초과하는 경우가 잦았습니다. Rate Limit을 떠나서 서버 자원 소모를 최소화하는 것이 서비스 운영 측면에서 효과적이라고 판단하였습니다.
 
@@ -177,7 +187,7 @@ private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<Res
   if let latestData = data.first {
     let currentDate = Date()
     let interval = currentDate.timeIntervalSince(latestData.update)
-    
+
     if interval > 3600 {
       completion(.failure(.realmError(.outdatedData)))
     } else {
@@ -188,5 +198,7 @@ private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<Res
 ```
 
 ### 회고
+
 #### [Daily Football 블로그 회고 글](https://walkerhilla.github.io/posts/DailyFootball-%EC%B6%9C%EC%8B%9C-%ED%9A%8C%EA%B3%A0/)
+
 4주라는 한정된 시간 동안 기획부터 개발, 출시까지 진행하며 제 스스로의 개발 프로세스에 대해 점검해볼 수 있는 값진 경험이었습니다. 경험해보지 않은 여러 트러블 슈팅을 겪으면서 문제 상황에서 필요한 정보를 리서치하는 방법, 사용해보지 않은 도구를 효과적으로 학습하는 방법 등을 훈련할 수 있었습니다. 첫 출시 프로젝트의 경험을 토대로 올바른 프로세스를 정립해나가겠습니다. 감사합니다.
