@@ -12,26 +12,19 @@ struct FetchFollowedCompetitionsUseCase {
   private let userCompetitionFollowsRepo = UserCompetitionFollowsRepository()
   private let disposeBag = DisposeBag()
   
-  func execute() -> PublishSubject<[Competition]> {
-    let subject = PublishSubject<[Competition]>()
-    let response =  userCompetitionFollowsRepo.fetchFollowedCompetitions()
-    
-    response
-      .subscribe { value in
-        if value.isEmpty {
-          subject.onNext([])
-        } else {
-          do {
-            let data = try CompetitionMapper.mapCompetitions(from: value)
-            subject.onNext(data)
-          } catch {
-            subject.onError(FetchFollowedCompetitionsError.dataLoadFailed)
-          }
+  func execute() -> Single<[Competition]> {
+    return userCompetitionFollowsRepo.fetchFollowedCompetitions()
+      .flatMap { value -> Single<[Competition]> in
+        guard !value.isEmpty else {
+          return .just([])
+        }
+        do {
+          let data = try CompetitionMapper.mapCompetitions(from: value)
+          return .just(data)
+        } catch {
+          return .error(FetchFollowedCompetitionsError.dataLoadFailed)
         }
       }
-      .disposed(by: disposeBag)
-    
-    return subject
   }
 }
 

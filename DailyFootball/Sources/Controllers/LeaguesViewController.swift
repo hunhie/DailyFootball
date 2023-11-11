@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 import SnapKit
 
 final class LeaguesViewController: BaseViewController {
   
   private let leagueView = LeaguesView()
   private var viewModel = LeaguesViewModel()
+  private let disposeBag = DisposeBag()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -21,9 +24,9 @@ final class LeaguesViewController: BaseViewController {
     setupNavigation()
     setViewModel()
     
-    viewModel.state.value = .loading
-    viewModel.handle(action: .fetchFollowedCompetitions)
-    viewModel.handle(action: .fetchCompetitionGroups)
+//    viewModel.state.value = .loading
+//    viewModel.handle(action: .fetchFollowedCompetitions)
+//    viewModel.handle(action: .fetchCompetitionGroups)
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -40,35 +43,80 @@ final class LeaguesViewController: BaseViewController {
   }
   
   func setViewModel() {
-    viewModel.state.bind { [weak self] state in
-      guard let self else { return }
-      switch state {
-      case .error(let error):
-        print(error)
-      case .loading:
-        leagueView.showIndicator()
-      case .competitionsLoaded(let response):
-        leagueView.hideIndicator()
-        leagueView.updateAllCompetitions(with: response, animated: false)
-      case .followedCompetitionsLoad(let response, let animated):
-        leagueView.updateFollowingCompetitions(with: response, animated: animated)
-      case .followedSuccess(let response):
-        leagueView.followCompetition(with: response, animated: true)
-      case .unfollowedSuccess(let response):
-        leagueView.unfollowCompetition(with: response, animated: true)
-      case .competitionGroupExpansionToggled(let response):
-        leagueView.updateAllCompetitions(with: response, animated: true)
-      case .searchResultLoaded(filteredCompetitionGroups: let filteredCompetitionGroups, filteredFollowedCompetitions: let filteredFollowedCompetitions):
-        leagueView.updateAllCompetitions(with: filteredCompetitionGroups, animated: false)
-        leagueView.updateFollowingCompetitions(with: filteredFollowedCompetitions, animated: false)
-      case .reorderedFollowedCompetitions(let sourceIndexPath, let destinationIndexPath):
-        leagueView.reorderFollowingCompetitions(from: sourceIndexPath, to: destinationIndexPath)
-      case .followingSectionEditTapped(let isEditingFollowingCompetition):
-        leagueView.toggleEditingModeForFollowingCompetitionSection(isEditingFollowingCompetition)
-      case .idle:
-        return
+    let viewDidLoad = PublishSubject<Void>()
+    let input = LeaguesViewModel.Input(viewDidLoad: viewDidLoad)
+    
+    let output = viewModel.transform(input)
+    
+    output.competitionGroups
+      .subscribe(with: self, onNext: { owner, value in
+        owner.leagueView.updateAllCompetitions(with: value, animated: true)
+      })
+      .disposed(by: disposeBag)
+    
+    output.followedCompetitions
+      .subscribe(with: self) { owner, value in
+        owner.leagueView.updateFollowingCompetitions(with: value, animated: true)
       }
-    }
+      .disposed(by: disposeBag)
+    
+    output.isEditingMode
+      .bind(with: self) { owner, value in
+        owner.leagueView.toggleEditingModeForFollowingCompetitionSection(value)
+      }
+      .disposed(by: disposeBag)
+    
+    output.followEvent
+      .bind(with: self) { owner, value in
+        owner.leagueView.followCompetition(with: value, animated: true)
+        dump(value.id)
+        dump(value.info.id)
+        dump(value.isFollowed)
+        print("-------팔로우 업데이트--------")
+      }
+      .disposed(by: disposeBag)
+    
+    output.unfollowEvent
+      .bind(with: self) { owner, value in
+        owner.leagueView.unfollowCompetition(with: value, animated: true)
+        dump(value.id)
+        dump(value.info.id)
+        dump(value.isFollowed)
+        print("-------언팔로우 업데이트--------")
+      }
+      .disposed(by: disposeBag)
+    
+    input.viewDidLoad.onNext(())
+  
+//    viewModel.state.bind { [weak self] state in
+//      guard let self else { return }
+//      switch state {
+//      case .error(let error):
+//        print(error)
+//      case .loading:
+//        leagueView.showIndicator()
+//      case .competitionsLoaded(let response):
+//        leagueView.hideIndicator()
+//        leagueView.updateAllCompetitions(with: response, animated: false)
+//      case .followedCompetitionsLoad(let response, let animated):
+//        leagueView.updateFollowingCompetitions(with: response, animated: animated)
+//      case .followedSuccess(let response):
+//        leagueView.followCompetition(with: response, animated: true)
+//      case .unfollowedSuccess(let response):
+//        leagueView.unfollowCompetition(with: response, animated: true)
+//      case .competitionGroupExpansionToggled(let response):
+//        leagueView.updateAllCompetitions(with: response, animated: true)
+//      case .searchResultLoaded(filteredCompetitionGroups: let filteredCompetitionGroups, filteredFollowedCompetitions: let filteredFollowedCompetitions):
+//        leagueView.updateAllCompetitions(with: filteredCompetitionGroups, animated: false)
+//        leagueView.updateFollowingCompetitions(with: filteredFollowedCompetitions, animated: false)
+//      case .reorderedFollowedCompetitions(let sourceIndexPath, let destinationIndexPath):
+//        leagueView.reorderFollowingCompetitions(from: sourceIndexPath, to: destinationIndexPath)
+//      case .followingSectionEditTapped(let isEditingFollowingCompetition):
+//        leagueView.toggleEditingModeForFollowingCompetitionSection(isEditingFollowingCompetition)
+//      case .idle:
+//        return
+//      }
+//    }
   }
   
   func setupNavigation() {
@@ -103,7 +151,7 @@ final class LeaguesViewController: BaseViewController {
 
 extension LeaguesViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    viewModel.handleSearchInput(isActive: searchController.isActive, searchText: searchController.searchBar.text)
+//    viewModel.handleSearchInput(isActive: searchController.isActive, searchText: searchController.searchBar.text)
   }
 }
 
@@ -156,25 +204,25 @@ extension LeaguesViewController: UITableViewDelegate {
 
 extension LeaguesViewController: TableViewEditableDelegate {
   func isEditMode() -> Bool {
-    return viewModel.isEditingFollowingCompetition
+    return viewModel.isEditMode.value
   }
   
   func didTapEditButton() {
-    viewModel.handle(action: .tapEditOnFollowingSection)
+    viewModel.didToggleEditMode.accept(())
   }
 }
 
 extension LeaguesViewController: LeaguesViewDelegate {
   func didFollow(competition: Competition) {
-    viewModel.handle(action: .followCompetition(competition))
+    viewModel.followEvent.accept(competition)
   }
   
   func didUnfollow(competition: Competition) {
-    viewModel.handle(action: .unfollowCompetition(competition))
+    viewModel.unfollowEvent.accept(competition)
   }
   
   func didTapCompetitionGroup(competitionGroup: CompetitionGroupByCountry) {
-    viewModel.handle(action: .toggleCompetitionGroupDetail(competitionGroup))
+    viewModel.didToggleCompeitionGroup.accept(competitionGroup)
   }
   
   func didTapCompetition(competition: Competition) {
@@ -218,7 +266,7 @@ extension LeaguesViewController: UITableViewDropDelegate {
           let destinationIndexPath = coordinator.destinationIndexPath,
           sourceIndexPath != destinationIndexPath else { return }
     
-    viewModel.handle(action: .reorderCompetition(from: sourceIndexPath, to: destinationIndexPath))
+//    viewModel.handle(action: .reorderCompetition(from: sourceIndexPath, to: destinationIndexPath))
     coordinator.drop(draggableItem, toRowAt: destinationIndexPath)
   }
   
