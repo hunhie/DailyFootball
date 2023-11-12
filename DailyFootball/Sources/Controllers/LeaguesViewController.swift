@@ -15,8 +15,6 @@ final class LeaguesViewController: BaseViewController {
   private let leagueView = LeaguesView()
   private let viewModel = LeaguesViewModel()
   private let disposeBag = DisposeBag()
-  private let followEvent = PublishRelay<Competition>()
-  private let unfollowEvent = PublishRelay<Competition>()
   private let didToggleCompeitionGroup = PublishRelay<CompetitionGroupByCountry>()
   private let didToggleEditMode = PublishRelay<Void>()
   private let reorderEvent = PublishRelay<(from: IndexPath, to: IndexPath)>()
@@ -45,9 +43,9 @@ final class LeaguesViewController: BaseViewController {
   
   func setViewModel() {
     let viewDidLoad = PublishSubject<Void>()
-    let input = LeaguesViewModel.Input(viewDidLoad: viewDidLoad, followEvent: followEvent, unfollowEvent: unfollowEvent, didToggleCompeitionGroup: didToggleCompeitionGroup, didToggleEditMode: didToggleEditMode, reorderEvent: reorderEvent)
-    
+    let input = LeaguesViewModel.Input(viewDidLoad: viewDidLoad, didToggleCompeitionGroup: didToggleCompeitionGroup, didToggleEditMode: didToggleEditMode, reorderEvent: reorderEvent)
     let output = viewModel.transform(input)
+    
     leagueView.showIndicator()
     
     output.competitionGroups
@@ -170,11 +168,11 @@ extension LeaguesViewController: TableViewEditableDelegate {
 
 extension LeaguesViewController: LeaguesViewDelegate {
   func didFollow(competition: Competition) {
-    followEvent.accept(competition)
+    viewModel.followEvent.accept(competition)
   }
   
   func didUnfollow(competition: Competition) {
-    unfollowEvent.accept(competition)
+    viewModel.unfollowEvent.accept(competition)
   }
   
   func didTapCompetitionGroup(competitionGroup: CompetitionGroupByCountry) {

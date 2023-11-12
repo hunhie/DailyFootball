@@ -15,11 +15,13 @@ enum LeagueViewError: Error {
 
 final class LeaguesViewModel: ViewModelTransformable {
   // MARK: - Subjects
-  private var followedCompetitions = BehaviorRelay<[Competition]>(value: [])
-  private var competitionGroups = BehaviorRelay<[CompetitionGroupByCountry]>(value: [])
+  private let followedCompetitions = BehaviorRelay<[Competition]>(value: [])
+  private let competitionGroups = BehaviorRelay<[CompetitionGroupByCountry]>(value: [])
   
   // MARK: - Relay
-  var isEditMode = BehaviorRelay(value: false)
+  let isEditMode = BehaviorRelay(value: false)
+  let followEvent = PublishRelay<Competition>()
+  let unfollowEvent = PublishRelay<Competition>()
   
   // MARK: - Properties
   private let disposeBag = DisposeBag()
@@ -35,8 +37,6 @@ final class LeaguesViewModel: ViewModelTransformable {
   
   struct Input {
     let viewDidLoad: PublishSubject<Void>
-    let followEvent: PublishRelay<Competition>
-    let unfollowEvent: PublishRelay<Competition>
     let didToggleCompeitionGroup: PublishRelay<CompetitionGroupByCountry>
     let didToggleEditMode: PublishRelay<Void>
     let reorderEvent: PublishRelay<(from: IndexPath, to: IndexPath)>
@@ -82,7 +82,7 @@ final class LeaguesViewModel: ViewModelTransformable {
       }
       .disposed(by: disposeBag)
     
-    input.followEvent
+    followEvent
       .throttle(.seconds(1), scheduler: MainScheduler.instance)
       .flatMap { [weak self] value -> Single<([CompetitionGroupByCountry], [Competition])> in
         guard let self else { return Single.error(LeagueViewError.dataLoadFailed) }
@@ -101,7 +101,7 @@ final class LeaguesViewModel: ViewModelTransformable {
       }
       .disposed(by: disposeBag)
     
-    input.unfollowEvent
+    unfollowEvent
       .throttle(.seconds(1), scheduler: MainScheduler.instance)
       .flatMap { [weak self] value -> Single<([CompetitionGroupByCountry], [Competition])> in
         guard let self else { return Single.error(LeagueViewError.dataLoadFailed) }
