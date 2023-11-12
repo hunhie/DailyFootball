@@ -97,6 +97,11 @@ final class MatchesTableViewController: BaseViewController {
     output.fixtures
       .subscribe(with: self) { owner, value in
         owner.applySnapshot(for: value)
+        if value.isEmpty {
+          owner.setErrorLabel(.nofollowCompetition)
+        } else {
+          owner.errorLabel.isHidden = true
+        }
         owner.hideIndicator()
       }
       .disposed(by: disposeBag)
@@ -177,6 +182,7 @@ final class MatchesTableViewController: BaseViewController {
   private func setErrorLabel(_ errorType: MatchesError) {
     errorLabel.numberOfLines = 0
     errorLabel.textAlignment = .center
+    errorLabel.isHidden = false
     
     switch errorType {
     case .nofollowCompetition:
