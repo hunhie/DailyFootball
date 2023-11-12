@@ -21,10 +21,6 @@ final class CompetitionGroupsRepository {
     }
   }
   
-  deinit {
-    print("컴페티션 레포 소멸")
-  }
-  
   private lazy var apiManager: APIFootballManager = {
     return APIFootballManager()
   }()
@@ -45,7 +41,7 @@ final class CompetitionGroupsRepository {
       }
   }
   
-  func fetchFromDB() -> Single<Results<CompetitionTable>> {
+  private func fetchFromDB() -> Single<Results<CompetitionTable>> {
     return Single.create { [weak self] single in
       guard let self = self, let realm = self.realm else {
         single(.failure(CompetitionGroupsRepositoryError.realmError(.initializedFailed)))
@@ -63,7 +59,7 @@ final class CompetitionGroupsRepository {
     }
   }
   
-  func fetchFromAPI() -> Single<APIResponseLeagues> {
+  private func fetchFromAPI() -> Single<APIResponseLeagues> {
     return apiManager.request(.leagues)
   }
   

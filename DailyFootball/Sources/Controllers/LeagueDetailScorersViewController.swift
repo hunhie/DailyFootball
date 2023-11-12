@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class LeagueDetailScorersViewController: BaseViewController, InnerScrollProvidable {
   
@@ -29,6 +31,8 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
   
   private lazy var currentSeason: Int = competition.season.filter { $0.current }[0].year
   private var isHeaderVisible: Bool = false
+  
+  private let disposeBag = DisposeBag()
   
   init(competition: Competition) {
     self.competition = competition
@@ -61,25 +65,26 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
     setBackgroundColor(with: .background)
     setupInnerScroll()
     setIndicator()
+    setViewModel()
     
-    viewModel.state.bind { [weak self] state in
-      guard let self else { return }
-      switch state {
-      case .idle:
-        return
-      case .loading:
-        showIndicator()
-      case .loaded:
-        hideIndicator()
-      case .error(_):
-        errorLabel()
-      case .scorersLoaded(let response):
-        isHeaderVisible = true
-        applySnapShot(response)
-      }
-    }
+//    viewModel.state.bind { [weak self] state in
+//      guard let self else { return }
+//      switch state {
+//      case .idle:
+//        return
+//      case .loading:
+//        showIndicator()
+//      case .loaded:
+//        hideIndicator()
+//      case .error(_):
+//        errorLabel()
+//      case .scorersLoaded(let response):
+//        isHeaderVisible = true
+//        applySnapShot(response)
+//      }
+//    }
     
-    viewModel.state.value = .loading
+//    viewModel.state.value = .loading
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -91,7 +96,22 @@ final class LeagueDetailScorersViewController: BaseViewController, InnerScrollPr
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     
-    viewModel.handle(action: .fetchStandings(season: currentSeason, id: competition.id))
+//    viewModel.handle(action: .fetchStandings(season: currentSeason, id: competition.id))
+  }
+  
+  private func setViewModel() {
+    showIndicator()
+    let viewDidLoad = PublishSubject<(season: Int, id: Int)>()
+    let input = LeagueDetailScorersViewModel.Input(viewDidLoad: viewDidLoad)
+    let output = viewModel.transform(input)
+    output.scorers
+      .subscribe(with: self) { owner, value in
+        owner.isHeaderVisible = true
+        owner.applySnapShot(value)
+        owner.hideIndicator()
+      }
+      .disposed(by: disposeBag)
+    input.viewDidLoad.onNext((currentSeason, competition.id))
   }
   
   private func errorLabel() {

@@ -7,12 +7,12 @@
 
 import Foundation
 import RealmSwift
+import RxSwift
 
 final class ScorersRepository {
   private var realm: Realm? {
     do {
       let realm = try Realm()
-      print(realm.configuration.fileURL)
       return realm
     } catch {
       print("Error initializing realm: \(error)")
@@ -24,72 +24,66 @@ final class ScorersRepository {
     return APIFootballManager()
   }()
   
-  
-  public func fetchData(season: Int, id: Int, completion: @escaping (Result<LeagueTopScorersTable, TopScorersRepositoryError>) -> ()) {
-    fetchFromDB(season: season, id: id) { [weak self] result in
-      guard let self = self else { return }
-      switch result {
-      case .success(let response):
-        completion(.success(response))
-      case .failure:
-        self.fetchFromAPIAndSave(season: season, id: id, completion: completion)
-      }
-    }
-  }
-  
-  private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<LeagueTopScorersTable, TopScorersRepositoryError>) -> ()) {
-    guard let realm = self.realm else {
-      completion(.failure(.realmError(.initializedFailed)))
-      return
-    }
-    let data = realm.objects(LeagueTopScorersTable.self).filter("id == '\(id)' AND season == '\(season)'")
-    
-    if let retievedData = data.first {
-      let currentDate = Date()
-      let interval = currentDate.timeIntervalSince(retievedData.update)
-      if interval > 3600 {
-        completion(.failure(.realmError(.outdatedData)))
-      } else {
-        completion(.success(retievedData))
-      }
-    } else {
-      completion(.failure(.realmError(.DataEmpty)))
-    }
-  }
-  
-  private func saveToDB(response: APIResponseTopscorers) throws {
-    guard let realm = self.realm else {
-      throw TopScorersRepositoryError.realmError(.initializedFailed)
-    }
-    let topScorersTable = mapTopScorersTable(from: response)
-    do {
-      try realm.write {
-        realm.add(topScorersTable, update: .modified)
-      }
-    } catch {
-      throw TopScorersRepositoryError.realmError(.writeFailed)
-    }
-  }
-  
-  private func fetchFromAPIAndSave(season: Int, id: Int, completion: @escaping (Result<LeagueTopScorersTable, TopScorersRepositoryError>) -> ()) {
-    apiManager.request(.topScorers(season: season, id: id)) { [weak self] (result: Result<APIResponseTopscorers, APIFootballError>) in
-      switch result {
-      case .success(let response):
-        do {
-          try self?.saveToDB(response: response)
-          if let data = self?.realm?.object(ofType: LeagueTopScorersTable.self, forPrimaryKey: "\(id)") {
-            completion(.success(data))
-          } else {
-            completion(.failure(.realmError(.DataEmpty)))
-          }
-        } catch let error as TopScorersRepositoryError {
-          completion(.failure(error))
-        } catch {
-          completion(.failure(.unknownError))
+  func fetch(season: Int, id: Int) -> Single<LeagueTopScorersTable> {
+    return fetchFromDB(season: season, id: id)
+      .catch { [weak self] error -> Single<LeagueTopScorersTable> in
+        guard let self else { return Single.error(error) }
+        if let error = error as? TopScorersRepositoryError {
+          return fetchFromAPI(season: season, id: id)
+            .flatMapCompletable((saveToDB))
+            .andThen(fetchFromDB(season: season, id: id))
+        } else {
+          return Single.error(error)
         }
-      case .failure(let apiError):
-        completion(.failure(.apiError(apiError)))
       }
+  }
+  
+  private func fetchFromAPI(season: Int, id: Int) -> Single<APIResponseTopscorers> {
+    return apiManager.request(.topScorers(season: season, id: id))
+  }
+  
+  private func fetchFromDB(season: Int, id: Int) -> Single<LeagueTopScorersTable> {
+    return Single.create { [weak self] single in
+      guard let self,
+            let realm else {
+        single(.failure(TopScorersRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
+      }
+      let data = realm.objects(LeagueTopScorersTable.self).filter("id == '\(id)' AND season == '\(season)'")
+      
+      if let retievedData = data.first {
+        let currentDate = Date()
+        let interval = currentDate.timeIntervalSince(retievedData.update)
+        if interval > 3600 {
+          single(.failure(TopScorersRepositoryError.realmError(.outdatedData)))
+        } else {
+          single(.success(retievedData))
+        }
+      } else {
+        single(.failure(TopScorersRepositoryError.realmError(.DataEmpty)))
+      }
+      
+      return Disposables.create()
+    }
+  }
+  
+  private func saveToDB(response: APIResponseTopscorers) -> Completable {
+    return Completable.create { [weak self] completable in
+      guard let self,
+            let realm else {
+        completable(.error(TopScorersRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
+      }
+      let topScorersTable = mapTopScorersTable(from: response)
+      do {
+        try realm.write {
+          realm.add(topScorersTable, update: .modified)
+          completable(.completed)
+        }
+      } catch {
+        completable(.error(TopScorersRepositoryError.realmError(.writeFailed)))
+      }
+      return Disposables.create()
     }
   }
 }

@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class MatchesTableViewController: BaseViewController {
+  
+  private let didToggleFixtures = PublishRelay<FixtureGroupByCompetition>()
   
   private lazy var tableView: UITableView = {
     let view = UITableView(frame: .zero, style: .grouped)
@@ -51,7 +55,7 @@ final class MatchesTableViewController: BaseViewController {
           cell.tapAction = { [weak self] in
             guard let self else { return }
             cell.state = fixtureGroup.isExpanded ? .collapsed : .expanded
-            viewModel.handle(action: .toggleFixtureGroup(fixtureGroup))
+            didToggleFixtures.accept(fixtureGroup)
           }
         } else {
           cell.state = .nonExpandable
@@ -75,38 +79,41 @@ final class MatchesTableViewController: BaseViewController {
     setConstraints()
     setIndicator()
     
-    viewModel.state.bind { [weak self] state in
-      guard let self else { return }
-      switch state {
-      case .idle: return
-      case .loading:
-        showIndicator()
-      case .loaded:
-        hideIndicator()
-        errorLabel.removeFromSuperview()
-      case .fixtureGroupByCompetitionLoaded(let items):
-        applySnapshot(for: items)
-      case .fixtureGroupByCompetitionToggled(let items):
-        applySnapshot(for: items)
-      case .error(let error):
-        applySnapshot(for: [])
-        switch error {
-        case .noFollowedCompetition:
-          setErrorLabel(.nofollowCompetition)
-        case .serverError:
-          setErrorLabel(.serverError)
-        }
-      }
-    }
-    
-    viewModel.state.value = .loading
+//    viewModel.state.bind { [weak self] state in
+//      guard let self else { return }
+//      switch state {
+//      case .idle: return
+//      case .loading:
+//        showIndicator()
+//      case .loaded:
+//        hideIndicator()
+//        errorLabel.removeFromSuperview()
+//      case .fixtureGroupByCompetitionLoaded(let items):
+//        applySnapshot(for: items)
+//      case .fixtureGroupByCompetitionToggled(let items):
+//        applySnapshot(for: items)
+//      case .error(let error):
+//        applySnapshot(for: [])
+//        switch error {
+//        case .noFollowedCompetition:
+//          setErrorLabel(.nofollowCompetition)
+//        case .serverError:
+//          setErrorLabel(.serverError)
+//        }
+//      }
+//    }
+//    
+//    viewModel.state.value = .loading
   }
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     
     AppearanceCheck(self)
-    viewModel.handle(action: .fetchFixtureGroupByCompetition(date: matchesDate.date))
+  }
+  
+  private func setViewModel() {
+    
   }
   
   private func setIndicator() {

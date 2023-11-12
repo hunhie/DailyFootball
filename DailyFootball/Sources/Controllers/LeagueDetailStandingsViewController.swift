@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class LeagueDetailStandingsViewController: BaseViewController, InnerScrollProvidable {
   
@@ -20,6 +22,11 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
   }()
   
   let errorLabel = UILabel()
+  let disposeBag = DisposeBag()
+  
+  deinit {
+    dump("메모리 해제")
+  }
   
   private lazy var activityIndicator: UIActivityIndicatorView = {
     let view = UIActivityIndicatorView(style: .medium)
@@ -59,33 +66,28 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     setBackgroundColor(with: .background)
     setupInnerScroll()
     setIndicator()
-    
-    viewModel.state.bind { [weak self] state in
-      guard let self else { return }
-      switch state {
-      case .idle: return
-      case .loading:
-        showIndicator()
-      case .loaded:
-        hideIndicator()
-        errorLabel.removeFromSuperview()
-      case .error(let error):
-        applySnapShot([])
-        hideIndicator()
-        setErrorLabel()
-      case .standingsLoaded(let response):
-        hideIndicator()
-        isHeaderVisible = true
-        applySnapShot(response)
-      }
-    }
+    setViewModel()
   }
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     
-    viewModel.handle(action: .fetchStandings(season: currentSeason, id: competition.id))
     AppearanceCheck(self)
+  }
+  
+  private func setViewModel() {
+    showIndicator()
+    let viewDidLoad = PublishSubject<(season: Int, id: Int)>()
+    let input = LeagueDetailStandingsViewModel.Input(viewDidLoad: viewDidLoad)
+    let output = viewModel.transform(input)
+    output.standings
+      .subscribe(with: self, onNext: { owner, value in
+        owner.isHeaderVisible = true
+        owner.applySnapShot(value)
+        owner.hideIndicator()
+      })
+      .disposed(by: disposeBag)
+    input.viewDidLoad.onNext((season: currentSeason, id: competition.id))
   }
   
   private func setErrorLabel() {
@@ -122,34 +124,6 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     innerScroll.delegate = self
   }
   
-  //  private func applySnapShot(_ standings: [Standing]) {
-  //    var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-  //    isHeaderVisible = true
-  //    switch self.competition.info.cpType {
-  //    case .cup:
-  //      let groups = Set(standings.map { $0.group }).sorted()
-  //      for group in groups {
-  //        snapshot.appendSections([.group(group)])
-  //        let groupStandings = standings.filter { $0.group == group }
-  //        var items: [Item] = []
-  //        groupStandings.forEach { standing in
-  //          items.append(.standing(standing))
-  //        }
-  //        snapshot.appendItems(items, toSection: .group(group))
-  //      }
-  //
-  //    case .leauge:
-  //      snapshot.appendSections([.standings])
-  //      var items: [Item] = []
-  //      standings.forEach { standing in
-  //        items.append(.standing(standing))
-  //      }
-  //      snapshot.appendItems(items, toSection: .standings)
-  //    }
-  //
-  //    datasource.applySnapshotUsingReloadData(snapshot)
-  //  }
-  
   private func applySnapShot(_ standings: [Standing]) {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
     
@@ -166,7 +140,6 @@ final class LeagueDetailStandingsViewController: BaseViewController, InnerScroll
     
     datasource.applySnapshotUsingReloadData(snapshot)
   }
-  
 }
 
 
