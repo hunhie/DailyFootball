@@ -6,21 +6,16 @@
 //
 
 import Foundation
+import RxSwift
 
 struct FetchLeagueScorersUseCase {
   private let scorersRepo = ScorersRepository()
   
-  func execute(season: Int, id: Int, completion: @escaping (Result<[Scorer], FetchLeagueScorersError>) -> ()) {
-    
-    scorersRepo.fetchData(season: season, id: id) { result in
-      switch result {
-      case .success(let response):
-        let data = ScorersMapper.toEntity(from: response)
-        completion(.success(data))
-      case .failure(let error):
-        completion(.failure(.fetchFailed))
+  func execute(season: Int, id: Int) -> Single<[Scorer]> {
+    return scorersRepo.fetch(season: season, id: id)
+      .flatMap { value -> Single<[Scorer]> in
+        return .just(ScorersMapper.toEntity(from: value))
       }
-    }
   }
 }
 

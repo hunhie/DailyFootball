@@ -6,52 +6,42 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
-final class LeagueDetailScorersViewModel {
-  
-  private let fetchLeagueScorersUseCase = FetchLeagueScorersUseCase()
-  
-  var state: Observable<State> = Observable(.idle)
-  
-  func handle(action: Action) {
-    switch action {
-    case .fetchStandings(let season, let id):
-    fetchScorers(season: season, id: id)
-    }
+final class LeagueDetailScorersViewModel: ViewModelTransformable {
+  struct Input {
+    let viewDidLoad: PublishSubject<(season: Int, id: Int)>
   }
   
-  private func fetchScorers(season: Int, id: Int) {
-    fetchLeagueScorersUseCase.execute(season: season, id: id) { result in
-      switch result {
-      case .success(let response):
-        if !response.isEmpty {
-          self.state.value = .loaded
-          self.state.value = .scorersLoaded(response)
-        } else {
-          self.state.value = .error(.dataEmpty)
-        }
-      case .failure:
-        self.state.value = .loaded
-        self.state.value = .error(.serverError)
+  struct Output {
+    let scorers: PublishSubject<[Scorer]>
+  }
+  
+  private let fetchLeagueScorersUseCase = FetchLeagueScorersUseCase()
+  private let disposeBag = DisposeBag()
+  
+  func transform(_ input: Input) -> Output {
+    let scorers = PublishSubject<[Scorer]>()
+    
+    input.viewDidLoad
+      .flatMap { [weak self] value -> Single<[Scorer]> in
+        guard let self else { return Single.error(LeagueDetailScorersViewError.serverError) }
+        return fetchLeagueScorersUseCase.execute(season: value.season, id: value.id)
       }
-    }
+      .subscribe(with: self) { owner, value in
+        scorers.onNext(value)
+      } onError: { owner, error in
+        scorers.onError(error)
+      }
+      .disposed(by: disposeBag)
+
+    return Output(scorers: scorers)
   }
 }
 
 
 extension LeagueDetailScorersViewModel {
-  enum Action {
-    case fetchStandings(season: Int, id: Int)
-  }
-  
-  enum State {
-    case idle
-    case loading
-    case loaded
-    case scorersLoaded([Scorer])
-    case error(LeagueDetailScorersViewError)
-  }
-  
   enum LeagueDetailScorersViewError: Error {
     case dataEmpty
     case networkError

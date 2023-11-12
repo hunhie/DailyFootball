@@ -72,9 +72,9 @@ final class LeagueDetailViewController: DynamicHeaderTabManViewController {
   
   @objc func followButtonTapped() {
     if competition.isFollowed {
-      viewModel.handle(action: .unfollowCompetition(competition))
+      viewModel.unfollowEvent.accept(competition)
     } else {
-      viewModel.handle(action: .followCompetition(competition))
+      viewModel.followEvent.accept(competition)
     }
     competition.isFollowed.toggle()
   }

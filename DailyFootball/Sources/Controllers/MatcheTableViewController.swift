@@ -6,8 +6,13 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class MatchesTableViewController: BaseViewController {
+  
+  private let didToggleFixtures = PublishRelay<FixtureGroupByCompetition>()
+  private let disposeBag = DisposeBag()
   
   private lazy var tableView: UITableView = {
     let view = UITableView(frame: .zero, style: .grouped)
@@ -51,7 +56,7 @@ final class MatchesTableViewController: BaseViewController {
           cell.tapAction = { [weak self] in
             guard let self else { return }
             cell.state = fixtureGroup.isExpanded ? .collapsed : .expanded
-            viewModel.handle(action: .toggleFixtureGroup(fixtureGroup))
+            didToggleFixtures.accept(fixtureGroup)
           }
         } else {
           cell.state = .nonExpandable
@@ -74,39 +79,29 @@ final class MatchesTableViewController: BaseViewController {
     setBackgroundColor(with: .subBackground)
     setConstraints()
     setIndicator()
-    
-    viewModel.state.bind { [weak self] state in
-      guard let self else { return }
-      switch state {
-      case .idle: return
-      case .loading:
-        showIndicator()
-      case .loaded:
-        hideIndicator()
-        errorLabel.removeFromSuperview()
-      case .fixtureGroupByCompetitionLoaded(let items):
-        applySnapshot(for: items)
-      case .fixtureGroupByCompetitionToggled(let items):
-        applySnapshot(for: items)
-      case .error(let error):
-        applySnapshot(for: [])
-        switch error {
-        case .noFollowedCompetition:
-          setErrorLabel(.nofollowCompetition)
-        case .serverError:
-          setErrorLabel(.serverError)
-        }
-      }
-    }
-    
-    viewModel.state.value = .loading
   }
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     
     AppearanceCheck(self)
-    viewModel.handle(action: .fetchFixtureGroupByCompetition(date: matchesDate.date))
+    setViewModel()
+  }
+  
+  private func setViewModel() {
+    let viewDidLoad = PublishSubject<Date>()
+    let input = MatchesViewModel.Input(viewDidLoad: viewDidLoad, didToggleFixtures: didToggleFixtures)
+    let output = viewModel.transform(input)
+    showIndicator()
+    
+    output.fixtures
+      .subscribe(with: self) { owner, value in
+        owner.applySnapshot(for: value)
+        owner.hideIndicator()
+      }
+      .disposed(by: disposeBag)
+    
+    input.viewDidLoad.onNext(matchesDate.date)
   }
   
   private func setIndicator() {

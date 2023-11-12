@@ -6,53 +6,51 @@
 //
 
 import Foundation
+import RxSwift
+import RxRelay
 
-final class MatchesViewModel {
-
-  private let fetchFixtureByFollowedCompetitionUseCase = FetchFixturesByFollowedCompetitionUseCase()
+final class MatchesViewModel: ViewModelTransformable {
+  private let matches = PublishSubject<[FixtureGroupByCompetition]>()
+  private var matchesData: [FixtureGroupByCompetition] = []
   
-  var fixtureGroups: [FixtureGroupByCompetition] = []
-  
-  var state: Observable<State> = Observable(.idle)
-  
-  func handle(action: Action) {
-    switch action {
-    case .fetchFixtureGroupByCompetition(let date):
-      fetchFixtureGroupByCompetition(date: date)
-    case .toggleFixtureGroup(let group):
-      toggleFixtureGroup(for: group)
-    case .showIndicator:
-      state.value = .loading
-    }
+  struct Input {
+    let viewDidLoad: PublishSubject<Date>
+    let didToggleFixtures: PublishRelay<FixtureGroupByCompetition>
   }
   
-  private func fetchFixtureGroupByCompetition(date: Date) {
-    fetchFixtureByFollowedCompetitionUseCase.execute(date: date) { [weak self] result in
-      guard let self else { return }
-      switch result {
-      case .success(let success):
-        state.value = .loaded
-        state.value = .fixtureGroupByCompetitionLoaded(success)
-        fixtureGroups = success
-      case .failure(let error):
-        state.value = .loaded
-        switch error {
-        case .dataLoadFailed:
-          state.value = .error(.serverError)
-        case .noFollowCompetition:
-          state.value = .error(.noFollowedCompetition)
+  struct Output {
+    let fixtures: PublishSubject<[FixtureGroupByCompetition]>
+  }
+  
+  private let fetchFixtureByFollowedCompetitionUseCase = FetchFixturesByFollowedCompetitionUseCase()
+  private let disposeBag = DisposeBag()
+
+  func transform(_ input: Input) -> Output {
+    
+    input.viewDidLoad
+      .flatMap { [weak self] value -> Single<[FixtureGroupByCompetition]> in
+        guard let self else { return Single.error(MatchesError.unknownError) }
+        return fetchFixtureByFollowedCompetitionUseCase.execute(date: value)
+      }
+      .subscribe(with: self) { owner, value in
+        owner.matches.onNext(value)
+        owner.matchesData = value
+      }
+      .disposed(by: disposeBag)
+
+    input.didToggleFixtures
+      .subscribe(with: self) { owner, value in
+        var fixtures = owner.matchesData
+        if let index = fixtures.firstIndex(where: {
+          $0 == value
+        }) {
+          fixtures[index].isExpanded.toggle()
+          owner.matches.onNext(fixtures)
         }
       }
-    }
-  }
-  
-  private func toggleFixtureGroup(for group: FixtureGroupByCompetition) {
-    if let index = fixtureGroups.firstIndex(where: {
-      $0 == group
-    }) {
-      fixtureGroups[index].isExpanded.toggle()
-      state.value = .fixtureGroupByCompetitionToggled(fixtureGroups)
-    }
+      .disposed(by: disposeBag)
+    
+    return Output(fixtures: matches)
   }
 }
 
@@ -73,8 +71,9 @@ extension MatchesViewModel {
     case error(MatchesError)
   }
   
-  enum MatchesError {
+  enum MatchesError: Error {
     case serverError
     case noFollowedCompetition
+    case unknownError
   }
 }

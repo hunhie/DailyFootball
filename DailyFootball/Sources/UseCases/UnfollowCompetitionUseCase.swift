@@ -6,16 +6,13 @@
 //
 
 import Foundation
+import RxSwift
 
 struct UnfollowCompetitionUseCase {
   private let userCompetitionsFollowsRepo = UserCompetitionFollowsRepository()
   
-  func execute(competition: Competition) throws {
-    do {
-     try userCompetitionsFollowsRepo.unfollowCompetition(competition: competition)
-    } catch {
-      throw UnfollowCompetitionError.unfollowFailed
-    }
+  func execute(competition: Competition) -> Completable {
+    return userCompetitionsFollowsRepo.unfollowCompetition(competition: competition)
   }
 }
 

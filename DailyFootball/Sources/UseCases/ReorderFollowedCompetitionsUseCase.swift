@@ -6,16 +6,13 @@
 //
 
 import Foundation
+import RxSwift
 
 struct ReorderFollowedCompetitionsUseCase {
   private let userCompetitionFollowsRepo = UserCompetitionFollowsRepository()
-  
-  func execute(with reorderedFollowedCompetitions: [Competition]) throws {
-    do {
-      try userCompetitionFollowsRepo.reorderFollowedCompetitions(competitions: reorderedFollowedCompetitions)
-    } catch {
-      throw ReorderFollowedCompetitionsError.reorderFailed
-    }
+
+  func execute(with reorderedFollowedCompetitions: [Competition]) -> Completable {
+    return userCompetitionFollowsRepo.reorderFollowedCompetitions(competitions: reorderedFollowedCompetitions)
   }
 }
 

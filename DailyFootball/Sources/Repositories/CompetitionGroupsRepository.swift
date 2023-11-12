@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import RxSwift
 
 final class CompetitionGroupsRepository {
   
@@ -24,71 +25,64 @@ final class CompetitionGroupsRepository {
     return APIFootballManager()
   }()
   
-  public func fetchData(completion: @escaping (Result<Results<CompetitionTable>, CompetitionGroupsRepositoryError>) -> ()) {
-    fetchFromDB { [weak self] result in
-      guard let self else { return }
-      switch result {
-      case .success(let response):
-        completion(.success(response))
-      case .failure:
-        self.fetchFromAPIAndSave { result in
-          switch result {
-          case .success(let response):
-            completion(.success(response))
-          case .failure(let error):
-            completion(.failure(error))
-          }
+  func fetch() -> Single<Results<CompetitionTable>> {
+    return fetchFromDB()
+      .catch { [weak self] error -> Single<Results<CompetitionTable>> in
+        guard let self else { return Single.error(error)}
+        if let error = error as? CompetitionGroupsRepositoryError,
+           case .realmError(let realmError) = error,
+           realmError == .DataEmpty {
+          return fetchFromAPI()
+            .flatMapCompletable((saveToDB))
+            .andThen(fetchFromDB())
+        } else {
+          return Single.error(error)
         }
       }
-    }
   }
-}
-
-//MARK: - DataSource
-extension CompetitionGroupsRepository {
-  private func fetchFromDB(completion: @escaping (Result<Results<CompetitionTable>, CompetitionGroupsRepositoryError>) -> ()) {
-    guard let realm else {
-      completion(.failure(.realmError(.initializedFailed)))
-      return
-    }
-    let data = realm.objects(CompetitionTable.self)
-    if data.isEmpty {
-      completion(.failure(.realmError(.DataEmpty)))
-    } else {
-      completion(.success(data))
+  
+  private func fetchFromDB() -> Single<Results<CompetitionTable>> {
+    return Single.create { [weak self] single in
+      guard let self = self, let realm = self.realm else {
+        single(.failure(CompetitionGroupsRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
+      }
+      
+      let data = realm.objects(CompetitionTable.self)
+      if data.isEmpty {
+        single(.failure(CompetitionGroupsRepositoryError.realmError(.DataEmpty)))
+      } else {
+        single(.success(data))
+      }
+      
+      return Disposables.create()
     }
   }
   
-  private func saveToDB(response: APIResponseLeagues) throws {
-    guard let realm else { throw CompetitionGroupsRepositoryError.realmError(.initializedFailed) }
-    
-    let competitionTables = leagueTableFromAPIResponseLeagues(leaguesResponse: response)
-    
-    do {
-      try realm.write {
-        realm.add(competitionTables, update: .modified)
-      }
-    } catch {
-      throw CompetitionGroupsRepositoryError.realmError(.writeFailed)
-    }
+  private func fetchFromAPI() -> Single<APIResponseLeagues> {
+    return apiManager.request(.leagues)
   }
   
-  private func fetchFromAPIAndSave(completion: @escaping (Result<Results<CompetitionTable>, CompetitionGroupsRepositoryError>) -> ()) {
-    apiManager.request(.leagues) { [weak self] (result: Result<APIResponseLeagues, APIFootballError>) in
-      guard let self else { return }
-      switch result {
-      case .success(let response):
-        do {
-          try self.saveToDB(response: response)
-          self.fetchFromDB(completion: completion)
-        } catch let error as RealmError {
-          completion(.failure(.realmError(error)))
-        } catch {
-          completion(.failure(.unknownError))
-        }
-      case .failure(let apiError):
-        completion(.failure(.apiError(apiError)))
+  private func saveToDB(response: APIResponseLeagues) -> Completable {
+    return Completable.create { [weak self] completable in
+      guard let self,
+            let realm else {
+        completable(.error(CompetitionGroupsRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
       }
+      
+      let competitionTables = leagueTableFromAPIResponseLeagues(leaguesResponse: response)
+      
+      do {
+        try realm.write {
+          realm.add(competitionTables, update: .modified)
+          completable(.completed)
+        }
+      } catch {
+        completable(.error(CompetitionGroupsRepositoryError.realmError(.writeFailed)))
+      }
+      
+      return Disposables.create()
     }
   }
 }

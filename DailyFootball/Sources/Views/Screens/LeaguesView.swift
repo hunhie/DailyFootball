@@ -293,7 +293,7 @@ extension LeaguesView {
       activeSections.remove(.followingCompetition)
     }
     
-    dataSource.apply(currentSnapshot, animatingDifferences: animated)
+    dataSource.apply(currentSnapshot, animatingDifferences: true)
   }
   
   private func reloadSection(_ sectionIdentifier: Section) {
