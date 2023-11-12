@@ -71,7 +71,7 @@ final class LeaguesViewModel: ViewModelTransformable {
       .disposed(by: disposeBag)
     
     input.didToggleCompeitionGroup
-      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .throttle(.milliseconds(650), scheduler: MainScheduler.instance)
       .subscribe(with: self) { owner, value in
         var groups = owner.competitionGroups.value
         if let index = groups.firstIndex(where: { $0.country.name == value.country.name }) {
