@@ -6,62 +6,53 @@
 //
 
 import Foundation
+import RxSwift
 
 struct FetchFixturesByFollowedCompetitionUseCase {
   private let userCompetitionFollowsRepo = UserCompetitionFollowsRepository()
   private let fixturesRepo = FixturesDataRepository()
   
-  func execute(date: Date, status: String? = nil, completion: @escaping (Result<[FixtureGroupByCompetition], FetchFixturesByFollowedCompetitionError>) -> ()) {
-    
-    userCompetitionFollowsRepo.fetchFollowedCompetitions { result in
-      switch result {
-      case .success(let response):
-        if response.isEmpty {
-          completion(.failure(.noFollowCompetition))
+  func execute(date: Date, status: String? = nil) -> Single<[FixtureGroupByCompetition]> {
+    return userCompetitionFollowsRepo.fetchFollowedCompetitions()
+      .flatMap { competitions -> Single<[FixtureGroupByCompetition]> in
+        if competitions.isEmpty {
+          return .just([])
         } else {
           do {
-            let followCompetitions = try CompetitionMapper.mapCompetitions(from: response)
+            let followCompetitions = try CompetitionMapper.mapCompetitions(from: competitions)
             let targetSeasonAndId = followCompetitions.map { competition in
               let currentSeason: [Competition.Season] = competition.season.filter{ $0.current == true }
               let currentSeasonYear = currentSeason[0].year
               return (id: competition.id, season: currentSeasonYear)
             }
             
-            fixturesRepo.fetchData(date: date, targetCompetitions: targetSeasonAndId) { result in
-              switch result {
-              case .success(let response):
+            return self.fixturesRepo.fetch(date: date, targetCompetitions: targetSeasonAndId, status: status)
+              .flatMap { result -> Single<[FixtureGroupByCompetition]> in
                 do {
                   var fixtureGroups: [FixtureGroupByCompetition] = []
-                  for table in response {
+                  for table in result {
                     let fixtureGroup = try FixtureGroupMapper.mapEntity(from: table)
                     fixtureGroups.append(fixtureGroup)
                   }
                   
                   let orderDict = Dictionary(uniqueKeysWithValues: followCompetitions.enumerated().map { ($1.id, $0) })
-
+                  
                   let groupsWithFixtures = fixtureGroups.filter { !$0.fixtures.isEmpty }
                   let groupsWithoutFixtures = fixtureGroups.filter { $0.fixtures.isEmpty }
-
+                  
                   let sortedGroupsWithFixtures = groupsWithFixtures.sorted { orderDict[$0.info.id]! < orderDict[$1.info.id]! }
                   let sortedGroupsWithoutFixtures = groupsWithoutFixtures.sorted { orderDict[$0.info.id]! < orderDict[$1.info.id]! }
-
-                  let sortedFixtureGroups = sortedGroupsWithFixtures + sortedGroupsWithoutFixtures
-                  completion(.success(sortedFixtureGroups))
+                  
+                  return .just(sortedGroupsWithFixtures + sortedGroupsWithoutFixtures)
                 } catch {
-                  completion(.failure(.dataLoadFailed))
+                  return .error(FetchFixturesByFollowedCompetitionError.dataLoadFailed)
                 }
-              case .failure:
-                completion(.failure(.dataLoadFailed))
               }
-            }
           } catch {
-            completion(.failure(.dataLoadFailed))
+            return .error(FetchFixturesByFollowedCompetitionError.dataLoadFailed)
           }
         }
-      case .failure:
-        completion(.failure(.dataLoadFailed))
       }
-    }
   }
 }
 

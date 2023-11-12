@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import RxSwift
 
 final class StandingsRepository {
   
@@ -24,85 +25,77 @@ final class StandingsRepository {
     return APIFootballManager()
   }()
   
-  public func fetchData(season: Int, id: Int, completion: @escaping (Result<List<StandingTable>, StandingsRepositoryError>) -> ()) {
-    fetchFromDB(season: season, id: id) { [weak self] result in
-      guard let self = self else { return }
-      switch result {
-      case .success(let response):
-        if let response = response.first {
-          completion(.success(response.standings))
-        }
-      case .failure:
-        self.fetchFromAPIAndSave(season: season, id: id) { result in
-          switch result {
-          case .success(let response):
-            if let response = response.first {
-              completion(.success(response.standings))
+  func fetch(season: Int, id: Int) -> Single<List<StandingTable>> {
+    return fetchFromDB(season: season, id: id)
+      .catch { [weak self] error -> Single<List<StandingTable>> in
+        guard let self = self else { return Single.error(error) }
+        if let error = error as? StandingsRepositoryError,
+           case .realmError = error {
+          return fetchFromAPI(season: season, id: id)
+            .flatMap { [weak self] value -> Single<List<StandingTable>> in
+              guard let self = self else { return Single.error(error) }
+              let dbTable = self.standingsTableFromAPIResponseStandings(standingsResponse: value)
+              guard let data = dbTable.first else { return Single.error(error) }
+              return self.saveToDB(response: value)
+                .andThen(Single.just(data.standings))
             }
-          case .failure(let error):
-            completion(.failure(error))
-          }
+        } else {
+          return Single.error(error)
         }
       }
-    }
   }
   
-  private func fetchFromDB(season: Int, id: Int, completion: @escaping (Result<Results<StandingsTable>, StandingsRepositoryError>) -> ()) {
-    guard let realm = self.realm else {
-      completion(.failure(.realmError(.initializedFailed)))
-      return
-    }
-    let data = realm.objects(StandingsTable.self).filter("season == \(season) AND id == \(id)")
-    
-    if data.isEmpty {
-      completion(.failure(.realmError(.DataEmpty)))
-      return
-    }
-    
-    if let latestData = data.first {
-      let currentDate = Date()
-      let interval = currentDate.timeIntervalSince(latestData.update)
+  
+  private func fetchFromDB(season: Int, id: Int) -> Single<List<StandingTable>> {
+    return Single.create { [weak self] single in
+      guard let self,
+            let realm else {
+        single(.failure(StandingsRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
+      }
       
-      if interval > 3600 {
-        completion(.failure(.realmError(.outdatedData)))
-        return
-      } else {
-        completion(.success(data))
-        return
-      }
-    }
-  }
-  
-  private func saveToDB(response: APIResponseStandings) throws {
-    guard let realm else { throw StandingsRepositoryError.realmError(.initializedFailed) }
-    
-    let standingsTable = standingsTableFromAPIResponseStandings(standingsResponse: response)
-    
-    do {
-      try realm.write {
-        realm.add(standingsTable, update: .modified)
-      }
-    } catch {
-      throw StandingsRepositoryError.realmError(.writeFailed)
-    }
-  }
-  
-  private func fetchFromAPIAndSave(season: Int, id: Int, completion: @escaping (Result<Results<StandingsTable>, StandingsRepositoryError>) -> ()) {
-    apiManager.request(.standings(season: season, id: id)) { [weak self] (result: Result<APIResponseStandings, APIFootballError>) in
-      guard let self = self else { return }
-      switch result {
-      case .success(let response):
-        do {
-          try self.saveToDB(response: response)
-          self.fetchFromDB(season: season, id: id, completion: completion)
-        } catch let error as RealmError {
-          completion(.failure(.realmError(error)))
-        } catch {
-          completion(.failure(.unknownError))
+      let data = realm.objects(StandingsTable.self).filter("season == \(season) AND id == \(id)")
+      if data.isEmpty {
+        single(.failure(StandingsRepositoryError.realmError(.DataEmpty)))
+      } else if let latestData = data.first {
+        let currentDate = Date()
+        let interval = currentDate.timeIntervalSince(latestData.update)
+        
+        if interval > 3600 {
+          single(.failure(StandingsRepositoryError.realmError(.outdatedData)))
+        } else {
+          single(.success(latestData.standings))
         }
-      case .failure(let apiError):
-        completion(.failure(.apiError(apiError)))
       }
+      
+      return Disposables.create()
+    }
+  }
+  
+  private func fetchFromAPI(season: Int, id: Int) -> Single<APIResponseStandings> {
+    return apiManager.request(.standings(season: season, id: id))
+  }
+  
+  private func saveToDB(response: APIResponseStandings) -> Completable {
+    return Completable.create { [weak self] completable in
+      guard let self,
+            let realm else {
+        completable(.error(StandingsRepositoryError.realmError(.initializedFailed)))
+        return Disposables.create()
+      }
+      
+      let standingsTable = standingsTableFromAPIResponseStandings(standingsResponse: response)
+      
+      do {
+        try realm.write {
+          realm.add(standingsTable, update: .modified)
+          completable(.completed)
+        }
+      } catch {
+        completable(.error(StandingsRepositoryError.realmError(.writeFailed)))
+      }
+      
+      return Disposables.create()
     }
   }
 }

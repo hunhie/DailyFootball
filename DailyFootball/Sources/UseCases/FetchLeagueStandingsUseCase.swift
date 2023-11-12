@@ -6,21 +6,16 @@
 //
 
 import Foundation
+import RxSwift
 
 struct FetchLeagueStandingsUseCase {
   private let standingsRepo = StandingsRepository()
 
-  func execute(season: Int, id: Int, completion: @escaping (Result<[Standing], FetchLeagueStandingsError>) -> ()) {
-    
-    standingsRepo.fetchData(season: season, id: id) { result in
-      switch result {
-      case .success(let response):
-        let data = StandingMapper.mapStandings(from: response)
-        completion(.success(data))
-      case .failure:
-        completion(.failure(.fetchFailed))
+  func execute(season: Int, id: Int) -> Single<[Standing]> {
+    return standingsRepo.fetch(season: season, id: id)
+      .flatMap { value -> Single<[Standing]> in
+        return .just(StandingMapper.mapStandings(from: value))
       }
-    }
   }
 }
 

@@ -6,16 +6,13 @@
 //
 
 import Foundation
+import RxSwift
 
 struct FollowCompetitionUseCase {
   private let userCompetitionsFollowsRepo = UserCompetitionFollowsRepository()
   
-  func execute(competition: Competition) throws {
-    do {
-     try userCompetitionsFollowsRepo.followCompetition(competition: competition)
-    } catch {
-      throw FollowCompetitionError.followFailed
-    }
+  func execute(competition: Competition) -> Completable {
+    return userCompetitionsFollowsRepo.followCompetition(competition: competition)
   }
 }
 

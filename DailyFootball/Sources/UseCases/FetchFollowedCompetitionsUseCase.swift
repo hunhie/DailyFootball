@@ -6,28 +6,25 @@
 //
 
 import Foundation
+import RxSwift
 
 struct FetchFollowedCompetitionsUseCase {
   private let userCompetitionFollowsRepo = UserCompetitionFollowsRepository()
+  private let disposeBag = DisposeBag()
   
-  func execute(completion: @escaping (Result<[Competition], FetchFollowedCompetitionsError>) -> ()) {
-    userCompetitionFollowsRepo.fetchFollowedCompetitions { result in
-      switch result {
-      case .success(let response):
-        if response.isEmpty {
-          completion(.success([]))
-        } else {
-          do {
-            let data = try CompetitionMapper.mapCompetitions(from: response)
-            completion(.success(data))
-          } catch {
-            completion(.failure(.dataLoadFailed))
-          }
+  func execute() -> Single<[Competition]> {
+    return userCompetitionFollowsRepo.fetchFollowedCompetitions()
+      .flatMap { value -> Single<[Competition]> in
+        guard !value.isEmpty else {
+          return .just([])
         }
-      case .failure:
-        completion(.failure(.dataLoadFailed))
+        do {
+          let data = try CompetitionMapper.mapCompetitions(from: value)
+          return .just(data)
+        } catch {
+          return .error(FetchFollowedCompetitionsError.dataLoadFailed)
+        }
       }
-    }
   }
 }
 

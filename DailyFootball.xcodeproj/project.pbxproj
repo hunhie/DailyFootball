@@ -148,6 +148,10 @@
 		B6F270B72ACC057600F83105 /* TimeInterval+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F270B62ACC057600F83105 /* TimeInterval+Extension.swift */; };
 		B6F270B92ACC28BE00F83105 /* CountryTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F270B82ACC28BE00F83105 /* CountryTable.swift */; };
 		B6F270BB2ACC2B7800F83105 /* CompetitionTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F270BA2ACC2B7800F83105 /* CompetitionTable.swift */; };
+		B6FECD482AFDC8FE003AFC4F /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = B6FECD472AFDC8FE003AFC4F /* RxCocoa */; };
+		B6FECD4A2AFDC8FE003AFC4F /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = B6FECD492AFDC8FE003AFC4F /* RxRelay */; };
+		B6FECD4C2AFDC8FE003AFC4F /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6FECD4B2AFDC8FE003AFC4F /* RxSwift */; };
+		B6FECD4E2AFDCB72003AFC4F /* ViewModelTransformable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECD4D2AFDCB72003AFC4F /* ViewModelTransformable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -289,6 +293,7 @@
 		B6F270B62ACC057600F83105 /* TimeInterval+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Extension.swift"; sourceTree = "<group>"; };
 		B6F270B82ACC28BE00F83105 /* CountryTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryTable.swift; sourceTree = "<group>"; };
 		B6F270BA2ACC2B7800F83105 /* CompetitionTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompetitionTable.swift; sourceTree = "<group>"; };
+		B6FECD4D2AFDCB72003AFC4F /* ViewModelTransformable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelTransformable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -296,6 +301,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6FECD4A2AFDC8FE003AFC4F /* RxRelay in Frameworks */,
+				B6FECD482AFDC8FE003AFC4F /* RxCocoa in Frameworks */,
 				B6C0DAAE2ACE1A1800E8C8C0 /* RealmSwift in Frameworks */,
 				B6203C642AC7669F00839892 /* Kingfisher in Frameworks */,
 				B66002542AD2A2D200BE151C /* SVGKitSwift in Frameworks */,
@@ -304,6 +311,7 @@
 				B650F40B2AE20C2B00906982 /* FirebaseCrashlytics in Frameworks */,
 				B6203C522AC4A1C400839892 /* SnapKit in Frameworks */,
 				B650F4062AE1B43800906982 /* Tabman in Frameworks */,
+				B6FECD4C2AFDC8FE003AFC4F /* RxSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,6 +568,7 @@
 			children = (
 				B699E2E12ADBD0A80046186F /* LeaguesViewDelegate.swift */,
 				B699E2E82ADCD4440046186F /* TableViewEditableDelegate.swift */,
+				B6FECD4D2AFDCB72003AFC4F /* ViewModelTransformable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -709,6 +718,9 @@
 				B650F4052AE1B43800906982 /* Tabman */,
 				B650F4082AE20C2B00906982 /* FirebaseAnalyticsWithoutAdIdSupport */,
 				B650F40A2AE20C2B00906982 /* FirebaseCrashlytics */,
+				B6FECD472AFDC8FE003AFC4F /* RxCocoa */,
+				B6FECD492AFDC8FE003AFC4F /* RxRelay */,
+				B6FECD4B2AFDC8FE003AFC4F /* RxSwift */,
 			);
 			productName = DailyFootball;
 			productReference = B6203C142AC4644E00839892 /* DailyFootball.app */;
@@ -747,6 +759,7 @@
 				B66002522AD2A2D200BE151C /* XCRemoteSwiftPackageReference "SVGKit" */,
 				B650F4042AE1B43800906982 /* XCRemoteSwiftPackageReference "Tabman" */,
 				B650F4072AE20C2B00906982 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B6FECD462AFDC8FE003AFC4F /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			productRefGroup = B6203C152AC4644E00839892 /* Products */;
 			projectDirPath = "";
@@ -915,6 +928,7 @@
 				B699339C2AD7D54B007C1F73 /* CompetitionMapper.swift in Sources */,
 				B69A3CCE2AE9EDD200363452 /* Scorer.swift in Sources */,
 				B6B3F4B22AE9ABB800DBF83A /* Position.swift in Sources */,
+				B6FECD4E2AFDCB72003AFC4F /* ViewModelTransformable.swift in Sources */,
 				B69933932AD5237C007C1F73 /* LeaguesTableViewHeaderView.swift in Sources */,
 				B6203C692ACAAB9F00839892 /* Competition.swift in Sources */,
 				B62E5FC02AEB9F0C009F7A36 /* Date+Extension.swift in Sources */,
@@ -1234,6 +1248,14 @@
 				kind = branch;
 			};
 		};
+		B6FECD462AFDC8FE003AFC4F /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1276,6 +1298,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0DAAC2ACE1A1800E8C8C0 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		B6FECD472AFDC8FE003AFC4F /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6FECD462AFDC8FE003AFC4F /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		B6FECD492AFDC8FE003AFC4F /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6FECD462AFDC8FE003AFC4F /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		B6FECD4B2AFDC8FE003AFC4F /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6FECD462AFDC8FE003AFC4F /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
