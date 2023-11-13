@@ -20,7 +20,7 @@ struct Competition: Hashable {
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(info.id)
-//    hasher.combine(isFollowed)
+    hasher.combine(isFollowed)
   }
   
   struct Season {
