@@ -37,6 +37,8 @@
 		B6214BAD2ACE82DB00CF5906 /* DividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6214BAC2ACE82DB00CF5906 /* DividerView.swift */; };
 		B6214BAF2ACE9D4400CF5906 /* FollowedCompetitionTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6214BAE2ACE9D4400CF5906 /* FollowedCompetitionTable.swift */; };
 		B6214BB12ACE9F9700CF5906 /* LeaguesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6214BB02ACE9F9700CF5906 /* LeaguesViewModel.swift */; };
+		B62599422B01AC4C0002F949 /* LeaguesSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62599412B01AC4C0002F949 /* LeaguesSearchResultsViewController.swift */; };
+		B62599442B01B7F70002F949 /* LeaguesBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62599432B01B7F70002F949 /* LeaguesBaseViewController.swift */; };
 		B62E5FA22AEA5FCB009F7A36 /* MatchesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E5FA12AEA5FCB009F7A36 /* MatchesViewModel.swift */; };
 		B62E5FA42AEA63DE009F7A36 /* MatcheTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E5FA32AEA63DE009F7A36 /* MatcheTableViewController.swift */; };
 		B62E5FA62AEA6919009F7A36 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E5FA52AEA6919009F7A36 /* Utils.swift */; };
@@ -186,6 +188,8 @@
 		B6214BAC2ACE82DB00CF5906 /* DividerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DividerView.swift; sourceTree = "<group>"; };
 		B6214BAE2ACE9D4400CF5906 /* FollowedCompetitionTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowedCompetitionTable.swift; sourceTree = "<group>"; };
 		B6214BB02ACE9F9700CF5906 /* LeaguesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaguesViewModel.swift; sourceTree = "<group>"; };
+		B62599412B01AC4C0002F949 /* LeaguesSearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaguesSearchResultsViewController.swift; sourceTree = "<group>"; };
+		B62599432B01B7F70002F949 /* LeaguesBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaguesBaseViewController.swift; sourceTree = "<group>"; };
 		B62E5FA12AEA5FCB009F7A36 /* MatchesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViewModel.swift; sourceTree = "<group>"; };
 		B62E5FA32AEA63DE009F7A36 /* MatcheTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatcheTableViewController.swift; sourceTree = "<group>"; };
 		B62E5FA52AEA6919009F7A36 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -390,7 +394,9 @@
 			children = (
 				B6203C602AC6150E00839892 /* BaseViewController.swift */,
 				B6203C2D2AC4675A00839892 /* MainTabBarViewController.swift */,
+				B62599432B01B7F70002F949 /* LeaguesBaseViewController.swift */,
 				B6203C1B2AC4644E00839892 /* LeaguesViewController.swift */,
+				B62599412B01AC4C0002F949 /* LeaguesSearchResultsViewController.swift */,
 				B6203C372AC468D800839892 /* MatchesViewController.swift */,
 				B6203C392AC468F800839892 /* MoreViewController.swift */,
 				B6203C3B2AC4690D00839892 /* NewsViewController.swift */,
@@ -898,6 +904,7 @@
 				B62E5FD62AEC0D7A009F7A36 /* MatchPeriod.swift in Sources */,
 				B6203C2E2AC4675A00839892 /* MainTabBarViewController.swift in Sources */,
 				B650F4122AE23ECD00906982 /* LeagueDetailScorersViewController.swift in Sources */,
+				B62599422B01AC4C0002F949 /* LeaguesSearchResultsViewController.swift in Sources */,
 				B699339A2AD7AADF007C1F73 /* FetchFollowedCompetitionsUseCase.swift in Sources */,
 				B6E2BF522AE8251A00E94AB7 /* StandingMapper.swift in Sources */,
 				B6801C752AEE948200D5C059 /* FixtureDummyCell.swift in Sources */,
@@ -932,6 +939,7 @@
 				B69933932AD5237C007C1F73 /* LeaguesTableViewHeaderView.swift in Sources */,
 				B6203C692ACAAB9F00839892 /* Competition.swift in Sources */,
 				B62E5FC02AEB9F0C009F7A36 /* Date+Extension.swift in Sources */,
+				B62599442B01B7F70002F949 /* LeaguesBaseViewController.swift in Sources */,
 				B62E5FC62AEBC8C7009F7A36 /* CompetitionInfoTable.swift in Sources */,
 				B67466E22AE560E4005FF804 /* ScrollViewScrollAnimator.swift in Sources */,
 				B62E5FB42AEB958D009F7A36 /* APIResponseFixtures.swift in Sources */,
@@ -1120,7 +1128,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.HunHieLee.DailyFootball;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1155,7 +1163,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.HunHieLee.DailyFootball;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

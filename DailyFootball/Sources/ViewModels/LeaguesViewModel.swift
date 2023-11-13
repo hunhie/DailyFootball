@@ -14,9 +14,10 @@ enum LeagueViewError: Error {
 }
 
 final class LeaguesViewModel: ViewModelTransformable {
+  
   // MARK: - Subjects
-  private let followedCompetitions = BehaviorRelay<[Competition]>(value: [])
-  private let competitionGroups = BehaviorRelay<[CompetitionGroupByCountry]>(value: [])
+  private let followedCompetitions = BehaviorRelay<(data: [Competition], animated: Bool)>(value: ([], true))
+  private let competitionGroups = BehaviorRelay<(data: [CompetitionGroupByCountry], animated: Bool)>(value: ([], true))
   
   // MARK: - Relay
   let isEditMode = BehaviorRelay(value: false)
@@ -25,6 +26,8 @@ final class LeaguesViewModel: ViewModelTransformable {
   
   // MARK: - Properties
   private let disposeBag = DisposeBag()
+  private var followedCompetitionsData: [Competition] = []
+  private var competitionGroupsData: [CompetitionGroupByCountry] = []
   
   // MARK: - UseCases
   private lazy var fetchCompetitionGroupsUseCase = FetchAllCompetitionGroupedByCountryUseCase()
@@ -43,8 +46,8 @@ final class LeaguesViewModel: ViewModelTransformable {
   }
   
   struct Output {
-    let followedCompetitions: BehaviorRelay<[Competition]>
-    let competitionGroups: BehaviorRelay<[CompetitionGroupByCountry]>
+    let followedCompetitions: BehaviorRelay<(data: [Competition], animated: Bool)>
+    let competitionGroups: BehaviorRelay<(data: [CompetitionGroupByCountry], animated: Bool)>
     let isEditingMode: BehaviorRelay<Bool>
   }
   
@@ -74,8 +77,8 @@ final class LeaguesViewModel: ViewModelTransformable {
       .throttle(.milliseconds(650), scheduler: MainScheduler.instance)
       .subscribe(with: self) { owner, value in
         var groups = owner.competitionGroups.value
-        if let index = groups.firstIndex(where: { $0.country.name == value.country.name }) {
-          groups[index].isExpanded.toggle()
+        if let index = groups.0.firstIndex(where: { $0.country.name == value.country.name }) {
+          groups.0[index].isExpanded.toggle()
           let groups = groups
           owner.competitionGroups.accept(groups)
         }
@@ -138,30 +141,64 @@ final class LeaguesViewModel: ViewModelTransformable {
     var newData = data
     
     newData.forEach { newGroup in
-      if let index = lastetData.firstIndex(where: { $0.country == newGroup.country }) {
-        newData[index].isExpanded = lastetData[index].isExpanded
+      if let index = lastetData.data.firstIndex(where: { $0.country == newGroup.country }) {
+        newData[index].isExpanded = lastetData.data[index].isExpanded
       }
     }
     
-    competitionGroups.accept(newData)
+    competitionGroups.accept((newData, true))
+    competitionGroupsData = newData
   }
   
   private func updateFollowedCompetitions(_ data: [Competition]) {
-    self.followedCompetitions.accept(data)
+    followedCompetitions.accept((data, true))
+    followedCompetitionsData = data
   }
   
   private func reorderFollowedCompetitions(from initialPosition: IndexPath, to targetPosition: IndexPath) {
-    guard initialPosition.row < followedCompetitions.value.count,
-          targetPosition.row < followedCompetitions.value.count else { return }
+    guard initialPosition.row < followedCompetitions.value.data.count,
+          targetPosition.row < followedCompetitions.value.data.count else { return }
     
     var reorderedCompetitions = followedCompetitions.value
-    let selectedCompetition = reorderedCompetitions.remove(at: initialPosition.row)
-    reorderedCompetitions.insert(selectedCompetition, at: targetPosition.row)
+    let selectedCompetition = reorderedCompetitions.data.remove(at: initialPosition.row)
+    reorderedCompetitions.data.insert(selectedCompetition, at: targetPosition.row)
     
-    reorderFollowedCompetitionsUseCase.execute(with: reorderedCompetitions)
+    reorderFollowedCompetitionsUseCase.execute(with: reorderedCompetitions.data)
       .subscribe(with: self, onCompleted: { owner in
         owner.followedCompetitions.accept(reorderedCompetitions)
       })
       .disposed(by: disposeBag)
+  }
+  
+  func searchCompetition(with searchText: String) {
+    let searchText = searchText.lowercased()
+    
+    let filteredCompetitionGroups = competitionGroupsData
+      .map { group -> CompetitionGroupByCountry in
+        var modifiedGroup = group
+        modifiedGroup.isExpanded = true
+        
+        if group.country.name.lowercased().contains(searchText) {
+          return modifiedGroup
+        } else {
+          let filteredCompetitions = group.competitions.filter {
+            $0.info.name.lowercased().contains(searchText)
+          }
+          
+          modifiedGroup.competitions = filteredCompetitions
+          return modifiedGroup
+        }
+      }
+      .filter { !$0.competitions.isEmpty || $0.country.name.lowercased().contains(searchText) }
+    
+    let filteredFollowedCompetitions = followedCompetitionsData
+      .filter {
+        let title = $0.info.name.lowercased()
+        let country = $0.country.name.lowercased()
+        return title.contains(searchText) || country.contains(searchText)
+      }
+    
+    followedCompetitions.accept((filteredFollowedCompetitions, false))
+    competitionGroups.accept((filteredCompetitionGroups, false))
   }
 }

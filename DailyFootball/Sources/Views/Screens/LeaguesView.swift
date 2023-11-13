@@ -86,17 +86,17 @@ extension LeaguesView {
     updateAllCompetitionsSnapshot(groups, animated: animated)
   }
   
-  func followCompetition(with competition: Competition, animated: Bool) {
-    addFollowedCompetition(competition, animated: animated)
-  }
-  
-  func unfollowCompetition(with competition: Competition, animated: Bool) {
-    removeFollowedCompetition(competition, animated: animated)
-  }
-  
-  func reorderFollowingCompetitions(from: IndexPath, to: IndexPath) {
-    moveFollowedCompetition(from: from, to: to)
-  }
+//  func followCompetition(with competition: Competition, animated: Bool) {
+//    addFollowedCompetition(competition, animated: animated)
+//  }
+//  
+//  func unfollowCompetition(with competition: Competition, animated: Bool) {
+//    removeFollowedCompetition(competition, animated: animated)
+//  }
+//  
+//  func reorderFollowingCompetitions(from: IndexPath, to: IndexPath) {
+//    moveFollowedCompetition(from: from, to: to)
+//  }
   
   func competition(at indexPath: IndexPath) -> Competition? {
     if let item = dataSource?.itemIdentifier(for: indexPath), case .competition(let sectionedCompetition, _) = item {
@@ -271,31 +271,6 @@ extension LeaguesView {
     dataSource.apply(currentSnapshot, animatingDifferences: animated)
   }
   
-  private func addFollowedCompetition(_ competition: Competition, animated: Bool) {
-    guard let dataSource = self.dataSource else { return }
-    dataSource.defaultRowAnimation = .top
-    
-    var currentSnapshot = dataSource.snapshot()
-    currentSnapshot.appendItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))], toSection: .followingCompetition)
-    
-    activeSections.insert(.followingCompetition)
-    dataSource.apply(currentSnapshot, animatingDifferences: animated)
-  }
-  
-  private func removeFollowedCompetition(_ competition: Competition, animated: Bool) {
-    guard let dataSource else { return }
-    dataSource.defaultRowAnimation = .bottom
-    
-    var currentSnapshot = dataSource.snapshot()
-    currentSnapshot.deleteItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))])
-    
-    if currentSnapshot.numberOfItems(inSection: .followingCompetition) == 0 {
-      activeSections.remove(.followingCompetition)
-    }
-    
-    dataSource.apply(currentSnapshot, animatingDifferences: true)
-  }
-  
   private func reloadSection(_ sectionIdentifier: Section) {
     guard let dataSource else { return }
     
@@ -305,18 +280,43 @@ extension LeaguesView {
     dataSource.apply(currentSnapshot, animatingDifferences: false)
   }
   
-  private func moveFollowedCompetition(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-    guard let dataSource,
-          let itemToMove = dataSource.itemIdentifier(for: sourceIndexPath),
-          let referenceItem = dataSource.itemIdentifier(for: destinationIndexPath) else { return }
-    
-    var currentSnapshot = dataSource.snapshot()
-    if sourceIndexPath > destinationIndexPath {
-      currentSnapshot.moveItem(itemToMove, beforeItem: referenceItem)
-    } else {
-      currentSnapshot.moveItem(itemToMove, afterItem: referenceItem)
-    }
-    
-    dataSource.applySnapshotUsingReloadData(currentSnapshot)
-  }
+//  private func addFollowedCompetition(_ competition: Competition, animated: Bool) {
+//    guard let dataSource = self.dataSource else { return }
+//    dataSource.defaultRowAnimation = .top
+//    
+//    var currentSnapshot = dataSource.snapshot()
+//    currentSnapshot.appendItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))], toSection: .followingCompetition)
+//    
+//    activeSections.insert(.followingCompetition)
+//    dataSource.apply(currentSnapshot, animatingDifferences: animated)
+//  }
+//  
+//  private func removeFollowedCompetition(_ competition: Competition, animated: Bool) {
+//    guard let dataSource else { return }
+//    dataSource.defaultRowAnimation = .bottom
+//    
+//    var currentSnapshot = dataSource.snapshot()
+//    currentSnapshot.deleteItems([.followingCompetition(SectionedCompetition(competition: competition, sectionIdentifier: .followingCompetition))])
+//    
+//    if currentSnapshot.numberOfItems(inSection: .followingCompetition) == 0 {
+//      activeSections.remove(.followingCompetition)
+//    }
+//    
+//    dataSource.apply(currentSnapshot, animatingDifferences: true)
+//  }
+//  
+//  private func moveFollowedCompetition(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+//    guard let dataSource,
+//          let itemToMove = dataSource.itemIdentifier(for: sourceIndexPath),
+//          let referenceItem = dataSource.itemIdentifier(for: destinationIndexPath) else { return }
+//    
+//    var currentSnapshot = dataSource.snapshot()
+//    if sourceIndexPath > destinationIndexPath {
+//      currentSnapshot.moveItem(itemToMove, beforeItem: referenceItem)
+//    } else {
+//      currentSnapshot.moveItem(itemToMove, afterItem: referenceItem)
+//    }
+//    
+//    dataSource.applySnapshotUsingReloadData(currentSnapshot)
+//  }
 }
