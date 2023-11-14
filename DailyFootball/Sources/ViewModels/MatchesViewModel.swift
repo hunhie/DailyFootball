@@ -42,10 +42,12 @@ final class MatchesViewModel: ViewModelTransformable {
       .subscribe(with: self) { owner, value in
         var fixtures = owner.matchesData
         if let index = fixtures.firstIndex(where: {
-          $0 == value
+          $0.info.id == value.info.id
         }) {
           fixtures[index].isExpanded.toggle()
           owner.matches.onNext(fixtures)
+          owner.matchesData = fixtures
+          dump(fixtures[index])
         }
       }
       .disposed(by: disposeBag)

@@ -11,13 +11,12 @@ import RxCocoa
  
 protocol LeaguesBaseViewDelegate: AnyObject {
   func didTapCompetition(vc: UIViewController)
-  func didScroll()
 }
 
 class LeaguesBaseViewController: BaseViewController {
   
+  let viewModel: LeaguesViewModel
   let leagueView = LeaguesView()
-  let viewModel = LeaguesViewModel()
   let disposeBag = DisposeBag()
   let didToggleCompeitionGroup = PublishRelay<CompetitionGroupByCountry>()
   let didToggleEditMode = PublishRelay<Void>()
@@ -25,12 +24,20 @@ class LeaguesBaseViewController: BaseViewController {
   
   weak var delegate: LeaguesBaseViewDelegate?
   
+  init(viewModel: LeaguesViewModel) {
+    self.viewModel = viewModel
+    super.init(nibName: nil, bundle: nil)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     
     setConstraints()
     setLeagueView()
-    setViewModel()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -46,38 +53,6 @@ class LeaguesBaseViewController: BaseViewController {
     leagueView.tableView.dragDelegate = self
   }
   
-  func setViewModel() {
-    let viewDidLoad = PublishSubject<Void>()
-    let input = LeaguesViewModel.Input(viewDidLoad: viewDidLoad, didToggleCompeitionGroup: didToggleCompeitionGroup, didToggleEditMode: didToggleEditMode, reorderEvent: reorderEvent)
-    let output = viewModel.transform(input)
-    
-    leagueView.showIndicator()
-    
-    output.competitionGroups
-      .subscribe(with: self) { owner, value in
-        owner.leagueView.updateAllCompetitions(with: value.data, animated: value.animated)
-        owner.leagueView.hideIndicator()
-      } onError: { owner, error in
-        dump(error)
-      }
-      .disposed(by: disposeBag)
-
-    
-    output.followedCompetitions
-      .subscribe(with: self) { owner, value in
-        owner.leagueView.updateFollowingCompetitions(with: value.data, animated: value.animated)
-      }
-      .disposed(by: disposeBag)
-    
-    output.isEditingMode
-      .bind(with: self) { owner, value in
-        owner.leagueView.toggleEditingModeForFollowingCompetitionSection(value)
-      }
-      .disposed(by: disposeBag)
-    
-    input.viewDidLoad.onNext(())
-  }
-  
   func setConstraints() {
     view.addSubview(leagueView)
     leagueView.snp.makeConstraints { make in
@@ -88,7 +63,7 @@ class LeaguesBaseViewController: BaseViewController {
 
 extension LeaguesBaseViewController: UITableViewDelegate {
   func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-    delegate?.didScroll()
+    navigationItem.searchController?.searchBar.resignFirstResponder()
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -32,7 +32,7 @@ final class MainTabBarViewController: UITabBarController {
     tabBar.standardAppearance = appearance
     tabBar.scrollEdgeAppearance = appearance
     
-    let league = UINavigationController(rootViewController: LeaguesViewController())
+    let league = UINavigationController(rootViewController: LeaguesViewController(viewModel: LeaguesViewModel()))
     league.tabBarItem.image = UIImage(systemName: "trophy.fill")
     league.tabBarItem.title = LocalizedStrings.TabBar.Leagues.title.localizedValue
     

@@ -13,7 +13,7 @@ enum LeagueViewError: Error {
   case dataLoadFailed
 }
 
-final class LeaguesViewModel: ViewModelTransformable {
+class LeaguesViewModel: ViewModelTransformable {
   
   // MARK: - Subjects
   private let followedCompetitions = BehaviorRelay<(data: [Competition], animated: Bool)>(value: ([], true))
@@ -23,6 +23,7 @@ final class LeaguesViewModel: ViewModelTransformable {
   let isEditMode = BehaviorRelay(value: false)
   let followEvent = PublishRelay<Competition>()
   let unfollowEvent = PublishRelay<Competition>()
+  let searchKeyword = BehaviorRelay(value: "")
   
   // MARK: - Properties
   private let disposeBag = DisposeBag()
@@ -78,7 +79,8 @@ final class LeaguesViewModel: ViewModelTransformable {
       .subscribe(with: self) { owner, value in
         var groups = owner.competitionGroups.value
         if let index = groups.0.firstIndex(where: { $0.country.name == value.country.name }) {
-          groups.0[index].isExpanded.toggle()
+          groups.data[index].isExpanded.toggle()
+          groups.animated = true
           let groups = groups
           owner.competitionGroups.accept(groups)
         }
@@ -129,6 +131,13 @@ final class LeaguesViewModel: ViewModelTransformable {
       }
       .disposed(by: disposeBag)
     
+    searchKeyword
+      .asDriver()
+      .drive(with: self) { owner, value in
+        owner.searchCompetition(with: value)
+      }
+      .disposed(by: disposeBag)
+    
     return Output(
       followedCompetitions: followedCompetitions,
       competitionGroups: competitionGroups,
@@ -170,7 +179,7 @@ final class LeaguesViewModel: ViewModelTransformable {
       .disposed(by: disposeBag)
   }
   
-  func searchCompetition(with searchText: String) {
+  private func searchCompetition(with searchText: String) {
     let searchText = searchText.lowercased()
     
     let filteredCompetitionGroups = competitionGroupsData
@@ -200,5 +209,10 @@ final class LeaguesViewModel: ViewModelTransformable {
     
     followedCompetitions.accept((filteredFollowedCompetitions, false))
     competitionGroups.accept((filteredCompetitionGroups, false))
+  }
+  
+  func dataRestore() {
+    followedCompetitions.accept((followedCompetitionsData, false))
+    competitionGroups.accept((competitionGroupsData, false))
   }
 }

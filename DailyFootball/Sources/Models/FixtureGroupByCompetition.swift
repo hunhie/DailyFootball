@@ -15,10 +15,11 @@ struct FixtureGroupByCompetition: Hashable {
   var isExpanded: Bool = false
   
   static func == (lhs: FixtureGroupByCompetition, rhs: FixtureGroupByCompetition) -> Bool {
-    lhs.info.id == rhs.info.id
+    lhs.info.id == rhs.info.id && lhs.isExpanded == rhs.isExpanded
   }
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(info.id)
+    hasher.combine(isExpanded)
   }
 }

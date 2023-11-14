@@ -152,6 +152,14 @@ final class FixtureGroupCell: UITableViewCell {
   }
   
   private func updateExpansionArrowForExpansionState(state: ExpansionState) {
+    switch state {
+    case .collapsed:
+      print("접힘")
+    case .expanded:
+      print("펼쳐짐")
+    case .nonExpandable:
+      print("안펼쳐지는 셀")
+    }
     expansionArrowView.currentState = state
   }
   

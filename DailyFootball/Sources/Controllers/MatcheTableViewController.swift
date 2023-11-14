@@ -55,6 +55,7 @@ final class MatchesTableViewController: BaseViewController {
         if !fixtureGroup.fixtures.isEmpty {
           cell.tapAction = { [weak self] in
             guard let self else { return }
+            print(fixtureGroup.isExpanded)
             cell.state = fixtureGroup.isExpanded ? .collapsed : .expanded
             didToggleFixtures.accept(fixtureGroup)
           }
@@ -136,6 +137,8 @@ final class MatchesTableViewController: BaseViewController {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
     snapshot.appendSections(Section.allCases)
     
+    datasource.defaultRowAnimation = .none
+    
     if !items.isEmpty {
       var fixtureGroupItems: [Item] = []
       items.forEach { item in
@@ -153,31 +156,33 @@ final class MatchesTableViewController: BaseViewController {
     datasource.apply(snapshot, animatingDifferences: true)
   }
   
-  private func toggleSnapshot(for group: FixtureGroupByCompetition, at indexPath: IndexPath) {
-    var currentSnapshot = datasource.snapshot()
-    
-    let existingItemsForGroup = currentSnapshot.itemIdentifiers(inSection: .followingCompetitions).filter {
-      if case .fixtureGroupByCompetition(let group) = $0 {
-        return group.info.id == group.info.id
-      }
-      return false
-    }
-    
-    if group.isExpanded {
-      var newItems: [Item] = []
-      for fixture in group.fixtures {
-        newItems.append(.fixture(fixture))
-      }
-      
-      for (index, item) in newItems.enumerated() {
-        currentSnapshot.insertItems([item], afterItem: currentSnapshot.itemIdentifiers(inSection: .followingCompetitions)[indexPath.row + index])
-      }
-    } else {
-      currentSnapshot.deleteItems(existingItemsForGroup)
-    }
-    
-    datasource.apply(currentSnapshot, animatingDifferences: true)
-  }
+//  private func toggleSnapshot(for group: FixtureGroupByCompetition, at indexPath: IndexPath) {
+//    var currentSnapshot = datasource.snapshot()
+//    
+//    datasource.defaultRowAnimation = .none
+//    
+//    let existingItemsForGroup = currentSnapshot.itemIdentifiers(inSection: .followingCompetitions).filter {
+//      if case .fixtureGroupByCompetition(let group) = $0 {
+//        return group.info.id == group.info.id
+//      }
+//      return false
+//    }
+//    
+//    if group.isExpanded {
+//      var newItems: [Item] = []
+//      for fixture in group.fixtures {
+//        newItems.append(.fixture(fixture))
+//      }
+//      
+//      for (index, item) in newItems.enumerated() {
+//        currentSnapshot.insertItems([item], afterItem: currentSnapshot.itemIdentifiers(inSection: .followingCompetitions)[indexPath.row + index])
+//      }
+//    } else {
+//      currentSnapshot.deleteItems(existingItemsForGroup)
+//    }
+//    
+//    datasource.apply(currentSnapshot, animatingDifferences: true)
+//  }
   
   private func setErrorLabel(_ errorType: MatchesError) {
     errorLabel.numberOfLines = 0
