@@ -75,7 +75,7 @@ final class FixtureCell: UITableViewCell {
   
   func configureView(with fixture: Fixture) {
     self.fixture = fixture
-//    setLogoImage(fixture)
+    setLogoImage(fixture)
     setTitle(fixture)
     setMatchInfo(fixture)
   }
@@ -87,8 +87,8 @@ final class FixtureCell: UITableViewCell {
   private func setConstraints() {
     contentView.addSubview(containerView)
     containerView.addSubview(matchInfoLabel)
-//    containerView.addSubview(homeTeamLogoImageView)
-//    containerView.addSubview(awayTeamLogoImageView)
+    containerView.addSubview(homeTeamLogoImageView)
+    containerView.addSubview(awayTeamLogoImageView)
     containerView.addSubview(homeTeamNameLabel)
     containerView.addSubview(awayTeamNameLabel)
     
@@ -101,44 +101,44 @@ final class FixtureCell: UITableViewCell {
       $0.width.greaterThanOrEqualTo(20)
     }
     
-//    homeTeamLogoImageView.snp.makeConstraints {
-//      $0.centerY.equalToSuperview()
-//      $0.trailing.equalTo(matchInfoLabel.snp.leading).offset(-10)
-//      $0.size.equalTo(23)
-//    }
+    homeTeamLogoImageView.snp.makeConstraints {
+      $0.centerY.equalToSuperview()
+      $0.trailing.equalTo(matchInfoLabel.snp.leading).offset(-10)
+      $0.size.equalTo(23)
+    }
     
     homeTeamNameLabel.snp.makeConstraints {
       $0.leading.equalToSuperview().offset(16)
       $0.centerY.equalToSuperview()
-//      $0.trailing.lessThanOrEqualTo(homeTeamLogoImageView.snp.leading).offset(-16)
-      $0.trailing.lessThanOrEqualTo(matchInfoLabel.snp.leading).offset(-16)
+      $0.trailing.lessThanOrEqualTo(homeTeamLogoImageView.snp.leading).offset(-16)
+//      $0.trailing.lessThanOrEqualTo(matchInfoLabel.snp.leading).offset(-16)
     }
     
-//    awayTeamLogoImageView.snp.makeConstraints {
-//      $0.leading.equalTo(matchInfoLabel.snp.trailing).offset(10)
-//      $0.centerY.equalToSuperview()
-//      $0.size.equalTo(23)
-//    }
+    awayTeamLogoImageView.snp.makeConstraints {
+      $0.leading.equalTo(matchInfoLabel.snp.trailing).offset(10)
+      $0.centerY.equalToSuperview()
+      $0.size.equalTo(23)
+    }
     
     awayTeamNameLabel.snp.makeConstraints {
       $0.trailing.equalToSuperview().offset(-16)
       $0.centerY.equalToSuperview()
-//      $0.leading.greaterThanOrEqualTo(awayTeamLogoImageView.snp.trailing).offset(16)
-      $0.leading.greaterThanOrEqualTo(matchInfoLabel.snp.trailing).offset(16)
+      $0.leading.greaterThanOrEqualTo(awayTeamLogoImageView.snp.trailing).offset(16)
+//      $0.leading.greaterThanOrEqualTo(matchInfoLabel.snp.trailing).offset(16)
     }
   }
   
   private func setLogoImage(_ fixture: Fixture) {
-//    guard let teams  = fixture.teams else { return }
-//    if let logoURL = teams[.away]?.logoURL,
-//       let url = URL(string: logoURL) {
-//      awayTeamLogoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
-//    }
-//
-//    if let logoURL = teams[.home]?.logoURL,
-//       let url = URL(string: logoURL) {
-//      homeTeamLogoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
-//    }
+    guard let teams  = fixture.teams else { return }
+    if let logoURL = teams[.away]?.logoURL,
+       let url = URL(string: logoURL) {
+      awayTeamLogoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
+    }
+
+    if let logoURL = teams[.home]?.logoURL,
+       let url = URL(string: logoURL) {
+      homeTeamLogoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
+    }
   }
   
   private func setTitle(_ fixture: Fixture) {

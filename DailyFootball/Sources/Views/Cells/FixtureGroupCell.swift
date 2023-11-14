@@ -136,15 +136,15 @@ final class FixtureGroupCell: UITableViewCell {
   }
   
   private func setLogoImage(_ fixtureGroup: FixtureGroupByCompetition) {
-//    if let url = URL(string: fixtureGroup.info.logoURL) {
-//      logoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
-//    }
-    dump(fixtureGroup)
-    if let url = fixtureGroup.country.flagURL, let imageSource = URL(string: url) {
-      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
-    } else if fixtureGroup.country.name == "World" {
-      logoImageView.image = UIImage(named: "earth")
+    if let url = URL(string: fixtureGroup.info.logoURL) {
+      logoImageView.kf.setImage(with: url, options: [.transition(.fade(0.7))])
     }
+//    dump(fixtureGroup)
+//    if let url = fixtureGroup.country.flagURL, let imageSource = URL(string: url) {
+//      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
+//    } else if fixtureGroup.country.name == "World" {
+//      logoImageView.image = UIImage(named: "earth")
+//    }
   }
   
   private func setTitle(_ fixtureGroup: FixtureGroupByCompetition) {

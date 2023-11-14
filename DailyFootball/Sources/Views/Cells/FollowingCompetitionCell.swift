@@ -22,8 +22,8 @@ final class FollowingCompetitionCell: UITableViewCell {
   }()
   
   private lazy var stackView: UIStackView = {
-//    let view = UIStackView(arrangedSubviews: [deleteButton, logoImageView, titleLabel, reorderButton])
-    let view = UIStackView(arrangedSubviews: [deleteButton, titleLabel, reorderButton])
+    let view = UIStackView(arrangedSubviews: [deleteButton, logoImageView, titleLabel, reorderButton])
+    //    let view = UIStackView(arrangedSubviews: [deleteButton, titleLabel, reorderButton])
     view.axis = .horizontal
     view.alignment = .center
     view.spacing = 17
@@ -37,7 +37,7 @@ final class FollowingCompetitionCell: UITableViewCell {
     view.contentMode = .scaleAspectFit
     view.tintColor = .red
     view.isHidden = true
-
+    
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(deleteButtonTapped))
     view.isUserInteractionEnabled = true
     view.addGestureRecognizer(tapGesture)
@@ -103,14 +103,16 @@ final class FollowingCompetitionCell: UITableViewCell {
   }
   
   private func setLogoImage(_ data: Competition) {
-//    if let url = data.country.flagURL, let imageSource = URL(string: url) {
-//      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
-//    } else if data.country.name == "World" {
-//      logoImageView.image = UIImage(named: "earth")
-//    }
-//    if let imageSource = URL(string: data.info.logoURL) {
-//      logoImageView.kf.setImage(with: imageSource)
-//    }
+    //    if let url = data.country.flagURL, let imageSource = URL(string: url) {
+    //      logoImageView.kf.setImage(with: imageSource, options: [.processor(SVGImageProcessor())])
+    //    } else if data.country.name == "World" {
+    //      logoImageView.image = UIImage(named: "earth")
+    //    }
+    if let imageSource = URL(string: data.info.logoURL) {
+      logoImageView.kf.setImage(with: imageSource)
+    } else if data.country.name == "World" {
+      logoImageView.image = UIImage(named: "earth")
+    }
   }
   
   private func setTitle(_ data: Competition) {

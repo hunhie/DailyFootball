@@ -97,7 +97,7 @@ final class CompetitionCell: UITableViewCell {
   private func setConstraints() {
     contentView.addSubview(containerView)
     containerView.addSubview(dividerView)
-//    containerView.addSubview(logoImageView)
+    containerView.addSubview(logoImageView)
     containerView.addSubview(titleLabel)
     containerView.addSubview(followButton)
     
@@ -112,16 +112,16 @@ final class CompetitionCell: UITableViewCell {
       make.height.equalTo(1)
     }
     
-//    logoImageView.snp.makeConstraints { make in
-//      make.centerY.equalToSuperview()
-//      make.leading.equalToSuperview().offset(20)
-//      make.size.equalTo(24)
-//    }
+    logoImageView.snp.makeConstraints { make in
+      make.centerY.equalToSuperview()
+      make.leading.equalToSuperview().offset(20)
+      make.size.equalTo(24)
+    }
     
     titleLabel.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
-//      make.leading.equalTo(logoImageView.snp.trailing).offset(20)
-      make.leading.equalToSuperview().offset(20)
+      make.leading.equalTo(logoImageView.snp.trailing).offset(20)
+//      make.leading.equalToSuperview().offset(20)
       make.trailing.lessThanOrEqualTo(followButton.snp.leading).offset(-20)
     }
     
